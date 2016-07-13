@@ -30,7 +30,7 @@ Add `yaml` to the plugins section of your `.eslintrc` configuration file. You ca
 }
 ```
 
-You can run ESLint on individual JSON files or you can use the `--ext` flag to add JSON files to the list.
+You can run ESLint on individual YAML files or you can use the `--ext` flag to add YAML files to the list.
 
 ```
 eslint . --ext .yaml --ext .js
