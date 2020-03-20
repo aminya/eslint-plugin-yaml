@@ -4,6 +4,9 @@
   "description": "Lint YAML files",
   "version": "0.1.0",
   "author": "Amin Yahyaabadi, Peter deHaan",
+  "scripts": {
+    "test": "eslint ./spec/ci.yml --ext yml"
+  },
   "keywords": [
     "eslint",
     "eslintplugin",
@@ -31,5 +34,8 @@
   "dependencies": {
     "js-yaml": "^3.13.1",
     "jshint": "^2.11.0"
+  },
+  "devDependencies": {
+    "eslint": "^6.8.0"
   }
 }
