@@ -1,18 +1,9 @@
 {
   "name": "eslint-plugin-yaml",
+  "main": "lib/index.js",
   "description": "Lint YAML files",
-  "version": "1.0.0",
-  "author": "Peter deHaan",
-  "bugs": {
-    "url": "https://github.com/pdehaan/eslint-plugin-yaml/issues"
-  },
-  "dependencies": {
-    "js-yaml": "3.6.1",
-    "jshint": "^2.8.0"
-  },
-  "engines": {
-    "node": ">=0.12.0"
-  },
+  "version": "0.1.0",
+  "author": "Amin Yahyaabadi, Peter deHaan",
   "keywords": [
     "eslint",
     "eslintplugin",
@@ -20,11 +11,13 @@
     "yaml",
     "eslint-plugin-yaml"
   ],
-  "license": "ISC",
-  "main": "lib/index.js",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/pdehaan/eslint-plugin-yaml"
+  "repository": "https://github.com/pdehaan/eslint-plugin-yaml",
+  "license": "MIT",
+  "engines": {
+    "node": "*"
   },
-  "url": "https://github.com/pdehaan/eslint-plugin-yaml"
+  "dependencies": {
+    "js-yaml": "^3.13.1",
+    "jshint": "^2.11.0"
+  }
 }
