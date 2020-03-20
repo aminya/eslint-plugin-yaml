@@ -4,6 +4,9 @@
   "description": "Lint YAML files",
   "version": "0.1.0",
   "author": "Amin Yahyaabadi, Peter deHaan",
+  "scripts": {
+    "test": "eslint ./spec/ci.yml --ext yml"
+  },
   "keywords": [
     "eslint",
     "eslintplugin",
