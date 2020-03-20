@@ -9,9 +9,21 @@
     "eslintplugin",
     "eslint-plugin",
     "yaml",
-    "eslint-plugin-yaml"
+    "yml",
+    "eslint-plugin-yaml",
+    "eslint-plugin-yml"
   ],
-  "repository": "https://github.com/aminya/eslint-plugin-yaml",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aminya/eslint-plugin-yaml.git"
+  },
+  "bugs": {
+    "url": "https://github.com/aminya/eslint-plugin-yaml/issues"
+  },
+  "homepage": "https://github.com/aminya/eslint-plugin-yaml#readme",
+  "directories": {
+    "lib": "lib"
+  },
   "license": "MIT",
   "engines": {
     "node": "*"
