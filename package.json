@@ -11,7 +11,7 @@
     "yaml",
     "eslint-plugin-yaml"
   ],
-  "repository": "https://github.com/pdehaan/eslint-plugin-yaml",
+  "repository": "https://github.com/aminya/eslint-plugin-yaml",
   "license": "MIT",
   "engines": {
     "node": "*"
