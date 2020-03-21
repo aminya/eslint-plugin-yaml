@@ -50,5 +50,9 @@
     "tslint": "latest",
     "typescript": "^3.8.3"
   },
+  "prettier": {
+    "semi": false,
+    "tabWidth": 4,
+    "printWidth": 120
   }
 }
