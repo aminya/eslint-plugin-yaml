@@ -1,0 +1,52 @@
+{
+  // JS Files
+  "root": true,
+  "env": {
+    "es6": true,
+    "node": true,
+    "browser": true
+  },
+  "parserOptions": {
+    "ecmaFeatures": { "jsx": true },
+    "ecmaVersion": 2018,
+    "sourceType": "module"
+  },
+  "plugins": ["only-warn", "eslint-plugin"],
+  "extends": ["eslint:recommended", "plugin:eslint-plugin/all"],
+  "overrides": [
+    { // Bundled node version with atom has an old ESLint
+      // TypeScript files
+      "files": ["**/*.ts", "**/*.tsx"],
+      "env": {
+        "es6": true,
+        "node": true,
+        "browser": true
+      },
+      "parser": "@typescript-eslint/parser",
+      "parserOptions": {
+        "ecmaFeatures": { "jsx": true },
+        "ecmaVersion": 2018,
+        "sourceType": "module"
+      },
+      "plugins": ["@typescript-eslint", "only-warn", "eslint-plugin"],
+      "extends": [
+        "eslint:recommended",
+        "plugin:@typescript-eslint/eslint-recommended",
+        "plugin:@typescript-eslint/recommended",
+        "plugin:eslint-plugin/recommended"
+      ],
+      "rules": {
+        "@typescript-eslint/explicit-function-return-type": "off",
+        "@typescript-eslint/camelcase": "off",
+        "@typescript-eslint/no-use-before-define": "off",
+        "@typescript-eslint/member-delimiter-style": "off"
+      }
+    },
+    {
+      // JSON files
+      "files": ["*.json"],
+      "plugins": ["json"],
+      "extends": ["plugin:json/recommended-with-comments"]
+    }
+  ]
+}
