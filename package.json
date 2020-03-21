@@ -38,6 +38,17 @@
     "jshint": "^2.11.0"
   },
   "devDependencies": {
-    "eslint": "^6.8.0"
+    "eslint": "^6.8.0",
+    "eslint-plugin-json": "^2.1.1",
+    "@types/eslint": "^6.1.8",
+    "@types/js-yaml": "^3.12.2",
+    "@typescript-eslint/eslint-plugin": "latest",
+    "@typescript-eslint/parser": "latest",
+    "eslint-plugin-eslint-plugin": "^2.2.1",
+    "eslint-plugin-only-warn": "latest",
+    "prettier": "latest",
+    "tslint": "latest",
+    "typescript": "^3.8.3"
+  },
   }
 }
