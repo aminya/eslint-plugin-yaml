@@ -5,7 +5,9 @@
   "version": "0.1.2",
   "author": "Amin Yahyaabadi, Peter deHaan",
   "scripts": {
-    "test": "eslint ./spec/ci.yml --ext yml"
+    "link": "npm link eslint-plugin-yaml\n",
+    "test_ci": "eslint ./spec/ci.yml --ext yml",
+    "test": "npm run link & npm run test_ci"
   },
   "keywords": [
     "eslint",
