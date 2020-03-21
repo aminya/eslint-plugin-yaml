@@ -79,3 +79,14 @@ function postprocess(messages: LintMessage[][], fileName: string) {
         })
 }
 
+export const processors = {
+    // add your processors here
+    ".yml": {
+        preprocess: preprocess,
+        postprocess: postprocess
+    },
+    ".yaml": {
+        preprocess: preprocess,
+        postprocess: postprocess
+    }
+}
