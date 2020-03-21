@@ -6,7 +6,12 @@ import { safeLoad } from "js-yaml"
 import { Linter } from "eslint"
 import LintMessage = Linter.LintMessage
 
-const jshint = require("jshint").JSHINT
+const linter = new Linter();
+
+const ESLintConfig: Linter.Config = {
+    extends: ["plugin:json/recommended-with-comments"],
+    plugins: ["json"],
+}
 
 //------------------------------------------------------------------------------
 // Plugin Definition
