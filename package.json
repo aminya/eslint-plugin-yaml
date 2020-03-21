@@ -2,7 +2,7 @@
   "name": "eslint-plugin-yaml",
   "main": "lib/index.js",
   "description": "Lint YAML files",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "author": "Amin Yahyaabadi, Peter deHaan",
   "scripts": {
     "link": "npm link eslint-plugin-yaml\n",

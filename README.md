@@ -38,6 +38,8 @@ or:
 eslint example.yaml
 ```
 
+See spec folder for an example of eslint config file.
+
 ## Usage - method 2
 
 or add `yaml` to the plugins section of your `.eslintrc` configuration file. You can omit the `eslint-plugin-` prefix:
