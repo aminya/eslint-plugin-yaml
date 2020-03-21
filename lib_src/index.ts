@@ -65,23 +65,12 @@ function postprocess(messages: LintMessage[][], fileName: string) {
      */
     // Converting to json and linting using eslint-json
     const yaml_json = JSON.stringify(doc, null, 2)
-    jshint(yaml_json)
-    const data = jshint.data()
-    const errors = (data && data.errors) || []
 
-    return errors
-        .filter(function(e) {
-            return !!e
-        }).map(function(error) {
-            return {
-                ruleId: "bad-yaml",
-                severity: 2,
-                message: error.reason,
-                source: error.evidence,
-                line: error.line,
-                column: error.character
-            }
-        })
+    const linter_messages = linter.verify(yaml_json, ESLintConfig, { filename: fileName })
+
+    // // you need to return a one-dimensional array of the messages you want to keep
+    // return linter_messages
+    return linter_messages
 }
 
 export const processors = {
