@@ -40,7 +40,7 @@
   "devDependencies": {
     "eslint": "^6.8.0",
     "eslint-plugin-json": "^2.1.1",
-    "@types/eslint": "^6.1.8",
+    "@types/eslint": "^7.2.0",
     "@types/js-yaml": "^3.12.2",
     "@typescript-eslint/eslint-plugin": "latest",
     "@typescript-eslint/parser": "latest",
