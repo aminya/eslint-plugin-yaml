@@ -1,3 +1,16 @@
 node_modules
 .idea/*
 .idea
+
+# OS metadata
+.DS_Store
+Thumbs.db
+
+# Node
+node_modules
+
+# TypeScript
+*.tsbuildinfo
+
+# Build directories
+lib

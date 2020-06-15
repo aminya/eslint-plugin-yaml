@@ -9,8 +9,12 @@
     "test_ci": "eslint --no-eslintrc --plugin yaml --ext yml ./spec/ci.yml",
     "test": "npm run link & npm run test_ci",
     "build": "tsc -p src/tsconfig.json || echo done",
-    "prepare": "npm run build",
+    "prepare": "npm run build"
   },
+  "files": [
+    "src/**",
+    "lib/**"
+  ],
   "keywords": [
     "eslint",
     "eslintplugin",
