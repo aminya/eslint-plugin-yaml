@@ -41,19 +41,19 @@
   },
   "dependencies": {
     "js-yaml": "^3.13.1",
-    "eslint-plugin-json": "^2.1.1",
-    "eslint": "^6.8.0"
+    "eslint-plugin-json": "latest",
+    "eslint": "latest"
   },
   "devDependencies": {
-    "@types/eslint": "^6.1.8",
+    "@types/eslint": "latest",
     "@types/js-yaml": "^3.12.2",
     "@typescript-eslint/eslint-plugin": "latest",
     "@typescript-eslint/parser": "latest",
-    "eslint-plugin-eslint-plugin": "^2.2.1",
+    "eslint-plugin-eslint-plugin": "latest",
     "eslint-plugin-only-warn": "latest",
     "prettier": "latest",
     "tslint": "latest",
-    "typescript": "^3.8.3"
+    "typescript": "latest"
   },
   "prettier": {
     "semi": false,
