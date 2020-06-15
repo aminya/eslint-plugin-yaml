@@ -7,7 +7,9 @@
   "scripts": {
     "link": "npm link eslint-plugin-yaml",
     "test_ci": "eslint --no-eslintrc --plugin yaml --ext yml ./spec/ci.yml",
-    "test": "npm run link & npm run test_ci"
+    "test": "npm run link & npm run test_ci",
+    "build": "tsc -p src/tsconfig.json || echo done",
+    "prepare": "npm run build",
   },
   "keywords": [
     "eslint",
