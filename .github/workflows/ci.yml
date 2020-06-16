@@ -11,7 +11,11 @@ jobs:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v1
         with:
+<<<<<<< HEAD
           node-version: "14.x"
+=======
+      asdasdasd node-version: "14.x"
+>>>>>>> 64d22f94165e94a35c8970493d68d98cdebb8ec1
       - name: Install NPM dependencies
         run: |
           npm ci  # uses locked module. use `npm install` for non-locked
