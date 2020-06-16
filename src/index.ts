@@ -3,15 +3,10 @@
 //------------------------------------------------------------------------------
 
 import { safeLoad } from "js-yaml"
+import eslintJson from "eslint-plugin-json"
+
 import { Linter } from "eslint"
 import LintMessage = Linter.LintMessage
-
-const linter = new Linter();
-
-const ESLintConfig: Linter.Config = {
-    extends: ["plugin:json/recommended-with-comments"],
-    plugins: ["json"],
-}
 
 //------------------------------------------------------------------------------
 // Plugin Definition
@@ -65,10 +60,11 @@ function postprocess(messages: LintMessage[][], fileName: string) {
     // Converting to json and linting using eslint-json
     const yaml_json = JSON.stringify(doc, null, 2)
 
-    const linter_messages = linter.verify(yaml_json, ESLintConfig, { filename: fileName })
-
+    fileName = fileName + ".json"
+    eslintJson.processors[".json"].preprocess(yaml_json, fileName)
+    const linter_messages = eslintJson.processors[".json"].postprocess(messages, fileName)
+    
     // // you need to return a one-dimensional array of the messages you want to keep
-    // return linter_messages
     return linter_messages
 }
 
