@@ -5,9 +5,9 @@
   "version": "0.1.3",
   "author": "Amin Yahyaabadi, Peter deHaan",
   "scripts": {
-    "link": "npm link eslint-plugin-yaml",
-    "test_ci": "eslint --no-eslintrc --plugin yaml --ext yml ./spec/ci.yml",
-    "test": "npm run link & npm run test_ci",
+    "test-link": "cd spec && npm link '../' && cd ..",
+    "test-only": "eslint --config spec/.eslintrc.json --ext yml ./spec",
+    "test": "npm run test-link && npm run test-only",
     "build": "tsc -p src/tsconfig.json || echo done",
     "prepare": "npm run build"
   },
