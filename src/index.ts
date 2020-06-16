@@ -3,10 +3,10 @@
 //------------------------------------------------------------------------------
 
 import { safeLoad } from "js-yaml"
-import { Linter } from "eslint"
-import LintMessage = Linter.LintMessage
+import {JSHINT as jshint} from "jshint"
 
-const jshint = require("jshint").JSHINT
+// types
+import { Linter } from "eslint"
 
 //------------------------------------------------------------------------------
 // Plugin Definition
@@ -23,7 +23,7 @@ function preprocess(text: string, fileName: string) {
     return [{ text: text, filename: fileName }]
 }
 
-function postprocess(messages: LintMessage[][], fileName: string) {
+function postprocess(messages:  Linter.LintMessage[][], fileName: string) {
     // takes a Message[][] and filename
     // `messages` argument contains two-dimensional array of Message objects
     // where each top-level array item contains array of lint messages related
@@ -53,7 +53,6 @@ function postprocess(messages: LintMessage[][], fileName: string) {
             }
         ]
     }
-    delete fileContents[fileName]
 
     /*
      * YAML Lint via JSON
@@ -64,7 +63,7 @@ function postprocess(messages: LintMessage[][], fileName: string) {
     const data = jshint.data()
     const errors = (data && data.errors) || []
 
-    return errors
+    const linter_messages = errors
         .filter(function(e) {
             return !!e
         }).map(function(error) {
@@ -77,6 +76,9 @@ function postprocess(messages: LintMessage[][], fileName: string) {
                 column: error.character
             }
         })
+
+    // // you need to return a one-dimensional array of the messages you want to keep
+    return linter_messages
 }
 
 export const processors = {
@@ -89,4 +91,11 @@ export const processors = {
         preprocess: preprocess,
         postprocess: postprocess
     }
+}
+
+export const configs = {
+    recommended: {
+        plugins: ['yaml'],
+        "files": ["*.yaml", "*.yml", ".github/workflows/*.yml", ".github/workflows/*.yaml"],
+    },
 }

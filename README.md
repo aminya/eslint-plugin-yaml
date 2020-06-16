@@ -25,7 +25,8 @@ Add the following to the `overrides` section of `.eslintrc` for yaml files:
 "overrides" : [
     {
       "files": ["*.yaml", "*.yml"],
-      "plugins": ["yaml"]
+      "plugins": ["yaml"],
+      "extends": ["plugin:yaml/recommended"]
     }
 ]
 ```
@@ -48,7 +49,8 @@ or add `yaml` to the plugins section of your `.eslintrc` configuration file. You
 {
     "plugins": [
         "yaml"
-    ]
+    ],
+    "extends": ["plugin:yaml/recommended"]
 }
 ```
 

@@ -47,6 +47,11 @@
       "files": ["*.json"],
       "plugins": ["json"],
       "extends": ["plugin:json/recommended-with-comments"]
+    },
+    // YAML files
+    {
+      "files": ["*.yaml", "*.yml"],
+      "plugins": ["yaml"]
     }
   ]
 }
