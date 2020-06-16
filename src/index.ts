@@ -95,7 +95,9 @@ export const processors = {
 
 export const configs = {
     recommended: {
-        plugins: ['yaml'],
-        "files": ["*.yaml", "*.yml", ".github/workflows/*.yml", ".github/workflows/*.yaml"],
+        overrides:[{
+            plugins: ['yaml'],
+            "files": ["*.yaml", "*.yml", ".github/workflows/*.yml", ".github/workflows/*.yaml"],
+        }]
     },
 }

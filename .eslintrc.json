@@ -51,7 +51,8 @@
     // YAML files
     {
       "files": ["*.yaml", "*.yml"],
-      "plugins": ["yaml"]
+      "plugins": ["yaml"],
+      "extends": ["plugin:yaml/recommended"]
     }
   ]
 }
