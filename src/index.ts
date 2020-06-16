@@ -92,3 +92,10 @@ export const processors = {
         postprocess: postprocess
     }
 }
+
+export const configs = {
+    recommended: {
+        plugins: ['yaml'],
+        "files": ["*.yaml", "*.yml", ".github/workflows/*.yml", ".github/workflows/*.yaml"],
+    },
+}
