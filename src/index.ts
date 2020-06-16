@@ -58,7 +58,6 @@ function postprocess(messages: LintMessage[][], fileName: string) {
             }
         ]
     }
-    delete fileContents[fileName]
 
     /*
      * YAML Lint via JSON
