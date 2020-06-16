@@ -6,10 +6,10 @@
   "author": "Amin Yahyaabadi, Peter deHaan",
   "scripts": {
     "test-link": "cd spec && npm link '../' && cd ..",
-    "test-only": "eslint --config spec/.eslintrc.json --ext yml ./spec",
-    "test": "npm run test-link && npm run test-only",
+    "test": "eslint --config spec/.eslintrc.json --ext yml ./spec",
+    "lint": "eslint .",
     "build": "tsc -p src/tsconfig.json || echo done",
-    "prepare": "npm run build"
+    "prepare": "npm run build && npm run test-link"
   },
   "files": [
     "src/**",
