@@ -6,7 +6,7 @@
   "author": "Amin Yahyaabadi, Peter deHaan",
   "scripts": {
     "test-link": "npm link './'",
-    "test": "eslint --config spec/.eslintrc.json --ext yml ./spec",
+    "test": "eslint --ext yml ./spec",
     "lint": "eslint .",
     "build": "tsc -p src/tsconfig.json || echo done",
     "prepare": "npm run build"
