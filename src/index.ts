@@ -3,10 +3,10 @@
 //------------------------------------------------------------------------------
 
 import { safeLoad } from "js-yaml"
-import eslintJson from "eslint-plugin-json"
+import {JSHINT as jshint} from "jshint"
 
+// types
 import { Linter } from "eslint"
-import LintMessage = Linter.LintMessage
 
 //------------------------------------------------------------------------------
 // Plugin Definition
@@ -23,7 +23,7 @@ function preprocess(text: string, fileName: string) {
     return [{ text: text, filename: fileName }]
 }
 
-function postprocess(messages: LintMessage[][], fileName: string) {
+function postprocess(messages:  Linter.LintMessage[][], fileName: string) {
     // takes a Message[][] and filename
     // `messages` argument contains two-dimensional array of Message objects
     // where each top-level array item contains array of lint messages related
@@ -59,11 +59,24 @@ function postprocess(messages: LintMessage[][], fileName: string) {
      */
     // Converting to json and linting using eslint-json
     const yaml_json = JSON.stringify(doc, null, 2)
+    jshint(yaml_json)
+    const data = jshint.data()
+    const errors = (data && data.errors) || []
 
-    fileName = fileName + ".json"
-    eslintJson.processors[".json"].preprocess(yaml_json, fileName)
-    const linter_messages = eslintJson.processors[".json"].postprocess(messages, fileName)
-    
+    const linter_messages = errors
+        .filter(function(e) {
+            return !!e
+        }).map(function(error) {
+            return {
+                ruleId: "bad-yaml",
+                severity: 2,
+                message: error.reason,
+                source: error.evidence,
+                line: error.line,
+                column: error.character
+            }
+        })
+
     // // you need to return a one-dimensional array of the messages you want to keep
     return linter_messages
 }

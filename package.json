@@ -5,7 +5,7 @@
   "version": "0.1.3",
   "author": "Amin Yahyaabadi, Peter deHaan",
   "scripts": {
-    "test-link": "npm link './' && cd spec && npm link '../' && cd ..",
+    "test-link": "npm link './'",
     "test": "eslint --config spec/.eslintrc.json --ext yml ./spec",
     "lint": "eslint .",
     "build": "tsc -p src/tsconfig.json || echo done",
@@ -41,10 +41,10 @@
   },
   "dependencies": {
     "js-yaml": "^3.14.0",
-    "eslint-plugin-json": "latest",
-    "eslint": "latest"
+    "jshint": "^2.11.1"
   },
   "devDependencies": {
+    "eslint": "latest",
     "@types/eslint": "latest",
     "@types/js-yaml": "^3.12.4",
     "@typescript-eslint/eslint-plugin": "latest",
