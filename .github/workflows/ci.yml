@@ -16,7 +16,9 @@ jobs:
         run: |
           npm ci  # uses locked module. use `npm install` for non-locked
       - name: Run tests 👩🏾‍💻
-        run: npm run test
+        run: |
+          npm run test-link
+          npm run test
       - name: Lint ✨
         run: npm run lint
 
