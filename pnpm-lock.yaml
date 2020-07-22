@@ -1126,7 +1126,7 @@ packages:
       integrity: sha512-/lg70HAjtkUgWPVZhZcm+T4hkL8Zbtp1nFNOn3lRrxnlv50SRBv7cR7RqR+GMsd3hUXy9hWBo4CHTbFTcOYwig==
 specifiers:
   '@types/eslint': latest
-  '@types/js-yaml': ^3.12.4
+  '@types/js-yaml': ^3.12.5
   '@typescript-eslint/eslint-plugin': latest
   '@typescript-eslint/parser': latest
   eslint: latest
