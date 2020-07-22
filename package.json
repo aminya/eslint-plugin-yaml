@@ -5,8 +5,8 @@
   "version": "0.2.0",
   "author": "Amin Yahyaabadi, Peter deHaan",
   "scripts": {
-    "test-link": "npm link './'",
-    "test": "eslint --ext yml ./spec",
+    "test-link": "npm link .",
+    "test": "eslint --ext yml ./spec ./.github",
     "lint": "eslint .",
     "build": "tsc -p src/tsconfig.json || echo done",
     "prepare": "npm run build"
@@ -44,13 +44,13 @@
     "jshint": "^2.11.1"
   },
   "devDependencies": {
-    "eslint": "latest",
-    "eslint-plugin-json": "^2.1.1",
     "@types/eslint": "latest",
     "@types/js-yaml": "^3.12.4",
     "@typescript-eslint/eslint-plugin": "latest",
     "@typescript-eslint/parser": "latest",
+    "eslint": "latest",
     "eslint-plugin-eslint-plugin": "latest",
+    "eslint-plugin-json": "^2.1.1",
     "eslint-plugin-only-warn": "latest",
     "prettier": "latest",
     "tslint": "latest",
