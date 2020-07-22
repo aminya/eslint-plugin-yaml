@@ -10,11 +10,11 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v1
-        with:
+          with:
           node-version: "14.x"
       - name: Install NPM dependencies
         run: |
-          npm ci  # uses locked module. use `npm install` for non-locked
+          npm install
           npm run test-link
       - name: Run tests 👩🏾‍💻
         run: npm run test
