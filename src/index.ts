@@ -98,7 +98,7 @@ export const configs = {
         ignorePatterns: ["!.github"],
         overrides:[{
             plugins: ['yaml'],
-            "files": ["*.yaml", "*.yml", ".github/workflows/*.yml", ".github/workflows/*.yaml"],
+            "files": ["*.yaml", "*.yml"],
         }]
     },
 }
