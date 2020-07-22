@@ -5,7 +5,7 @@
   "version": "0.2.0",
   "author": "Amin Yahyaabadi, Peter deHaan",
   "scripts": {
-    "test-link": "npm link .",
+    "test-link": "pnpm link .",
     "test": "eslint --ext yml ./spec ./.github",
     "lint": "eslint .",
     "build": "tsc -p src/tsconfig.json || echo done",
