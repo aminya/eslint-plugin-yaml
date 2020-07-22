@@ -95,6 +95,7 @@ export const processors = {
 
 export const configs = {
     recommended: {
+        ignorePatterns: ["!.github"],
         overrides:[{
             plugins: ['yaml'],
             "files": ["*.yaml", "*.yml", ".github/workflows/*.yml", ".github/workflows/*.yaml"],
