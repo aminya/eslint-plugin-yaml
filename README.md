@@ -32,7 +32,7 @@ Add the following to the `overrides` section of `.eslintrc` for yaml files:
 ```
 and run it for all the files:
 ```
-eslint . 
+eslint .
 ```
 or:
 ```
@@ -60,3 +60,5 @@ You can run ESLint on individual YAML files or you can use the `--ext` flag to a
 eslint . --ext .yaml --ext .js
 eslint example.yaml
 ```
+
+By default, this plugin lints `.github` folder as well.
