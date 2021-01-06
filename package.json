@@ -45,7 +45,7 @@
   },
   "devDependencies": {
     "@types/eslint": "latest",
-    "@types/js-yaml": "^3.12.5",
+    "@types/js-yaml": "^4.0.0",
     "@typescript-eslint/eslint-plugin": "latest",
     "@typescript-eslint/parser": "latest",
     "eslint": "latest",
