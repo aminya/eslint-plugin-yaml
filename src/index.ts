@@ -24,6 +24,7 @@ function preprocess(text: string, fileName: string) {
     return [{ text, filename: fileName }]
 }
 
+// @ts-ignore
 function postprocess(messages: Linter.LintMessage[][], fileName: string) {
     // takes a Message[][] and filename
     // `messages` argument contains two-dimensional array of Message objects

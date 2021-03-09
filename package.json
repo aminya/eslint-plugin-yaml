@@ -8,7 +8,7 @@
     "test-link": "pnpm link .",
     "test": "eslint --ext yml ./spec ./.github",
     "lint": "eslint .",
-    "build": "tsc -p src/tsconfig.json || echo done",
+    "build": "tsc -p src/tsconfig.json",
     "prepare": "npm run build"
   },
   "files": [
