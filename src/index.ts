@@ -3,6 +3,7 @@
 //------------------------------------------------------------------------------
 
 import { load } from "js-yaml"
+
 import { JSHINT as jshint } from "jshint"
 
 // types
