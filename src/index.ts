@@ -2,7 +2,7 @@
 // Requirements
 //------------------------------------------------------------------------------
 
-import { safeLoad } from "js-yaml"
+import { load } from "js-yaml"
 import { JSHINT as jshint } from "jshint"
 
 // types
@@ -37,7 +37,7 @@ function postprocess(messages: Linter.LintMessage[][], fileName: string) {
     // Get document, or throw exception on error
     let doc
     try {
-        doc = safeLoad(fileContents[fileName], {
+        doc = load(fileContents[fileName], {
             filename: fileName,
             json: false,
         })
