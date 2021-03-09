@@ -3,7 +3,7 @@
 //------------------------------------------------------------------------------
 
 import { safeLoad } from "js-yaml"
-import {JSHINT as jshint} from "jshint"
+import { JSHINT as jshint } from "jshint"
 
 // types
 import { Linter } from "eslint"
@@ -20,10 +20,10 @@ function preprocess(text: string, fileName: string) {
     fileContents[fileName] = text
 
     // return an array of code blocks to lint
-    return [{ text: text, filename: fileName }]
+    return [{ text, filename: fileName }]
 }
 
-function postprocess(messages:  Linter.LintMessage[][], fileName: string) {
+function postprocess(messages: Linter.LintMessage[][], fileName: string) {
     // takes a Message[][] and filename
     // `messages` argument contains two-dimensional array of Message objects
     // where each top-level array item contains array of lint messages related
@@ -39,7 +39,7 @@ function postprocess(messages:  Linter.LintMessage[][], fileName: string) {
     try {
         doc = safeLoad(fileContents[fileName], {
             filename: fileName,
-            json: false
+            json: false,
         })
     } catch (e) {
         return [
@@ -49,8 +49,8 @@ function postprocess(messages:  Linter.LintMessage[][], fileName: string) {
                 message: e.message,
                 source: e.mark.buffer,
                 line: e.mark.line,
-                column: e.mark.column
-            }
+                column: e.mark.column,
+            },
         ]
     }
 
@@ -64,16 +64,15 @@ function postprocess(messages:  Linter.LintMessage[][], fileName: string) {
     const errors = (data && data.errors) || []
 
     const linter_messages = errors
-        .filter(function(e) {
-            return !!e
-        }).map(function(error) {
+        .filter((e) => Boolean(e))
+        .map((error) => {
             return {
                 ruleId: "bad-yaml",
                 severity: 2,
                 message: error.reason,
                 source: error.evidence,
                 line: error.line,
-                column: error.character
+                column: error.character,
             }
         })
 
@@ -84,21 +83,23 @@ function postprocess(messages:  Linter.LintMessage[][], fileName: string) {
 export const processors = {
     // add your processors here
     ".yml": {
-        preprocess: preprocess,
-        postprocess: postprocess
+        preprocess,
+        postprocess,
     },
     ".yaml": {
-        preprocess: preprocess,
-        postprocess: postprocess
-    }
+        preprocess,
+        postprocess,
+    },
 }
 
 export const configs = {
     recommended: {
         ignorePatterns: ["!.github"],
-        overrides:[{
-            plugins: ['yaml'],
-            "files": ["*.yaml", "*.yml"],
-        }]
+        overrides: [
+            {
+                plugins: ["yaml"],
+                files: ["*.yaml", "*.yml"],
+            },
+        ],
     },
 }
