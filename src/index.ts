@@ -83,6 +83,8 @@ function postprocess(messages: Linter.LintMessage[][], fileName: string): Linter
                 }
             })
 
+        // empty cache
+        fileContents.delete(fileName)
     }
 
     // // you need to return a one-dimensional array of the messages you want to keep
