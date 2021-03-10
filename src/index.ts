@@ -49,14 +49,15 @@ function postprocess(messages: Linter.LintMessage[][], fileName: string): Linter
                 json: false,
             })
         } catch (e) {
+            const { message, mark } = e as {message: string, mark: {buffer: string, line: number, column: number}}
             return [
                 {
                     ruleId: "invalid-yaml",
                     severity: 2,
-                    message: e.message,
-                    source: e.mark.buffer,
-                    line: e.mark.line,
-                    column: e.mark.column,
+                    message,
+                    source: mark.buffer,
+                    line: mark.line,
+                    column: mark.column,
                 },
             ]
         }
