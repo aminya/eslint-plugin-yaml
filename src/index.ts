@@ -42,7 +42,7 @@ function postprocess(messages: Linter.LintMessage[][], fileName: string): Linter
     if (fileContent !== undefined) {
         // Use js-yaml for reading the yaml file
         // Get document, or throw exception on error
-        let doc
+        let doc: ReturnType<typeof load>
         try {
             doc = load(fileContent, {
                 filename: fileName,
