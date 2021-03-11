@@ -1,14 +1,54 @@
 import { load } from "js-yaml"
-import { JSHINT as jshint } from "jshint"
+import { JSHINT as jshint, LintError as JsHintLintErrors } from "jshint"
 import type { Linter } from "eslint"
+
+/*
+██    ██ ████████ ██ ██      ███████
+██    ██    ██    ██ ██      ██
+██    ██    ██    ██ ██      ███████
+██    ██    ██    ██ ██           ██
+ ██████     ██    ██ ███████ ███████
+*/
 
 // filename -> fileContent
 const fileContents = new Map<string, string>()
 
-function preprocess(text: string, fileName: string) {
-    // takes text of the file and filename
-
+/** takes text of the file and filename */
+function cacheYaml(fileName: string, text: string) {
     fileContents.set(fileName, text)
+}
+
+type LoadYamlValue = ReturnType<typeof load>
+type LoadYamlException = { message: string; mark: { buffer: string; line: number; column: number } }
+
+/** Use js-yaml for reading the yaml file */
+function loadYaml(fileContent: string, fileName: string): LoadYamlValue {
+    // Get document, or throw exception on error
+    return load(fileContent, {
+        filename: fileName,
+        json: false,
+    })
+}
+
+/** YAML Lint via JSON (converting to json and linting using jshint) */
+function lintJSON(yamlDoc: LoadYamlValue): JsHintLintErrors[] {
+    const yaml_json = JSON.stringify(yamlDoc, null, 2)
+    jshint(yaml_json)
+    const data = jshint.data()
+    const errors = data?.errors ?? []
+    return errors
+}
+
+/*
+███████ ██   ██ ██████   ██████  ██████  ████████ ███████
+██       ██ ██  ██   ██ ██    ██ ██   ██    ██    ██
+█████     ███   ██████  ██    ██ ██████     ██    ███████
+██       ██ ██  ██      ██    ██ ██   ██    ██         ██
+███████ ██   ██ ██       ██████  ██   ██    ██    ███████
+*/
+
+function preprocess(text: string, fileName: string) {
+    cacheYaml(fileName, text)
 
     // return an array of code blocks to lint
     return [{ text, filename: fileName }]
@@ -24,21 +64,16 @@ function postprocess(messages: Linter.LintMessage[][], fileName: string): Linter
     /*
      * YAML Lint by Validation
      */
-
     let linter_messages: Linter.LintMessage[] = []
 
     const fileContent = fileContents.get(fileName)
     if (fileContent !== undefined) {
-        // Use js-yaml for reading the yaml file
         // Get document, or throw exception on error
-        let doc: ReturnType<typeof load>
+        let doc: LoadYamlValue
         try {
-            doc = load(fileContent, {
-                filename: fileName,
-                json: false,
-            })
+            doc = loadYaml(fileContent, fileName)
         } catch (e) {
-            const { message, mark } = e as { message: string; mark: { buffer: string; line: number; column: number } }
+            const { message, mark } = e as LoadYamlException
             return [
                 {
                     ruleId: "invalid-yaml",
@@ -54,12 +89,7 @@ function postprocess(messages: Linter.LintMessage[][], fileName: string): Linter
         /*
          * YAML Lint via JSON
          */
-        // Converting to json and linting using eslint-json
-        const yaml_json = JSON.stringify(doc, null, 2)
-        jshint(yaml_json)
-        const data = jshint.data()
-        const errors = data?.errors ?? []
-
+        const errors = lintJSON(doc)
         linter_messages = errors.map((error) => {
             return {
                 ruleId: "bad-yaml",
