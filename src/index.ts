@@ -72,7 +72,6 @@ function postprocess(messages: Linter.LintMessage[][], fileName: string): Linter
         const errors = data?.errors ?? []
 
         linter_messages = errors
-            .filter((e) => Boolean(e))
             .map((error) => {
                 return {
                     ruleId: "bad-yaml",
