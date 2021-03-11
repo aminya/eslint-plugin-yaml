@@ -21,6 +21,7 @@ $ npm install eslint-plugin-yaml --save-dev
 ## Usage - method 1
 
 Add the following to the `overrides` section of `.eslintrc` for yaml files:
+
 ```json
 "overrides" : [
     {
@@ -30,11 +31,15 @@ Add the following to the `overrides` section of `.eslintrc` for yaml files:
     }
 ]
 ```
+
 and run it for all the files:
+
 ```
 eslint .
 ```
+
 or:
+
 ```
 eslint example.yaml
 ```
@@ -47,9 +52,7 @@ or add `yaml` to the plugins section of your `.eslintrc` configuration file. You
 
 ```json
 {
-    "plugins": [
-        "yaml"
-    ],
+    "plugins": ["yaml"],
     "extends": ["plugin:yaml/recommended"]
 }
 ```

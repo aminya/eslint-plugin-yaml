@@ -38,7 +38,7 @@ function postprocess(messages: Linter.LintMessage[][], fileName: string): Linter
                 json: false,
             })
         } catch (e) {
-            const { message, mark } = e as {message: string, mark: {buffer: string, line: number, column: number}}
+            const { message, mark } = e as { message: string; mark: { buffer: string; line: number; column: number } }
             return [
                 {
                     ruleId: "invalid-yaml",
@@ -60,17 +60,16 @@ function postprocess(messages: Linter.LintMessage[][], fileName: string): Linter
         const data = jshint.data()
         const errors = data?.errors ?? []
 
-        linter_messages = errors
-            .map((error) => {
-                return {
-                    ruleId: "bad-yaml",
-                    severity: 2,
-                    message: error.reason,
-                    source: error.evidence,
-                    line: error.line,
-                    column: error.character,
-                }
-            })
+        linter_messages = errors.map((error) => {
+            return {
+                ruleId: "bad-yaml",
+                severity: 2,
+                message: error.reason,
+                source: error.evidence,
+                line: error.line,
+                column: error.character,
+            }
+        })
 
         // empty cache
         fileContents.delete(fileName)

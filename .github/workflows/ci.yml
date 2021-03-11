@@ -1,33 +1,33 @@
 name: CI
 on:
-  - push
-  - pull_request
+    - push
+    - pull_request
 
 jobs:
-  Test:
-    if: "!contains(github.event.head_commit.message, '[skip ci]')"
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
-        with:
-          node-version: "14.x"
-      - name: Setup PNPM
-        uses: pnpm/action-setup@master
-        with:
-          version: latest
-      - name: Install NPM dependencies
-        run: |
-          npm install
-          npm run test-link
-      - name: Run tests 👩🏾‍💻
-        run: npm run test
-      - name: Lint ✨
-        run: npm run lint
+    Test:
+        if: "!contains(github.event.head_commit.message, '[skip ci]')"
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v2
+            - uses: actions/setup-node@v2
+              with:
+                  node-version: "14.x"
+            - name: Setup PNPM
+              uses: pnpm/action-setup@master
+              with:
+                  version: latest
+            - name: Install NPM dependencies
+              run: |
+                  npm install
+                  npm run test-link
+            - name: Run tests 👩🏾‍💻
+              run: npm run test
+            - name: Lint ✨
+              run: npm run lint
 
-  Skip:
-    if: contains(github.event.head_commit.message, '[skip ci]')
-    runs-on: ubuntu-latest
-    steps:
-      - name: Skip CI 🚫
-        run: echo skip ci
+    Skip:
+        if: contains(github.event.head_commit.message, '[skip ci]')
+        runs-on: ubuntu-latest
+        steps:
+            - name: Skip CI 🚫
+              run: echo skip ci
