@@ -2,16 +2,20 @@ import { load } from "js-yaml"
 import { JSHINT as jshint } from "jshint"
 import type { Linter } from "eslint"
 
+/*
+██    ██ ████████ ██ ██      ███████
+██    ██    ██    ██ ██      ██
+██    ██    ██    ██ ██      ███████
+██    ██    ██    ██ ██           ██
+ ██████     ██    ██ ███████ ███████
+*/
+
 // filename -> fileContent
 const fileContents = new Map<string, string>()
 
-function preprocess(text: string, fileName: string) {
-    // takes text of the file and filename
-
+/** takes text of the file and filename */
+function cacheYaml(fileName: string, text: string) {
     fileContents.set(fileName, text)
-
-    // return an array of code blocks to lint
-    return [{ text, filename: fileName }]
 }
 
 type LoadYamlValue = ReturnType<typeof load>
@@ -24,6 +28,21 @@ function loadYaml(fileContent: string, fileName: string): LoadYamlValue {
         filename: fileName,
         json: false,
     })
+}
+
+/*
+███████ ██   ██ ██████   ██████  ██████  ████████ ███████
+██       ██ ██  ██   ██ ██    ██ ██   ██    ██    ██
+█████     ███   ██████  ██    ██ ██████     ██    ███████
+██       ██ ██  ██      ██    ██ ██   ██    ██         ██
+███████ ██   ██ ██       ██████  ██   ██    ██    ███████
+*/
+
+function preprocess(text: string, fileName: string) {
+    cacheYaml(fileName, text)
+
+    // return an array of code blocks to lint
+    return [{ text, filename: fileName }]
 }
 
 // @ts-ignore
