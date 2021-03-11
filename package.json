@@ -5,6 +5,7 @@
   "version": "0.4.1",
   "author": "Amin Yahyaabadi, Peter deHaan",
   "scripts": {
+    "format": "prettier --write .",
     "test-link": "pnpm link .",
     "test": "eslint --ext yml ./spec ./.github",
     "lint": "eslint .",
