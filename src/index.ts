@@ -1,17 +1,6 @@
-//------------------------------------------------------------------------------
-// Requirements
-//------------------------------------------------------------------------------
-
 import { load } from "js-yaml"
-
 import { JSHINT as jshint } from "jshint"
-
-// types
-import { Linter } from "eslint"
-
-//------------------------------------------------------------------------------
-// Plugin Definition
-//------------------------------------------------------------------------------
+import type { Linter } from "eslint"
 
 // filename -> fileContent
 const fileContents = new Map<string, string>()
