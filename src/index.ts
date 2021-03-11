@@ -69,9 +69,9 @@ function postprocess(messages: Linter.LintMessage[][], fileName: string): Linter
     const fileContent = fileContents.get(fileName)
     if (fileContent !== undefined) {
         // Get document, or throw exception on error
-        let doc: LoadYamlValue
+        let yamlDoc: LoadYamlValue | undefined
         try {
-            doc = loadYaml(fileContent, fileName)
+            yamlDoc = loadYaml(fileContent, fileName)
         } catch (e) {
             const { message, mark } = e as LoadYamlException
             return [
@@ -85,11 +85,12 @@ function postprocess(messages: Linter.LintMessage[][], fileName: string): Linter
                 },
             ]
         }
+        // at this point yamlDoc is defined
 
         /*
          * YAML Lint via JSON
          */
-        const errors = lintJSON(doc)
+        const errors = lintJSON(yamlDoc as LoadYamlValue)
         linter_messages = errors.map((error) => {
             const { reason, evidence, line, character } = error
             return {
