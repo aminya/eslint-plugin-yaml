@@ -14,6 +14,18 @@ function preprocess(text: string, fileName: string) {
     return [{ text, filename: fileName }]
 }
 
+type LoadYamlValue = ReturnType<typeof load>
+type LoadYamlException = { message: string; mark: { buffer: string; line: number; column: number } }
+
+/** Use js-yaml for reading the yaml file */
+function loadYaml(fileContent: string, fileName: string): LoadYamlValue {
+    // Get document, or throw exception on error
+    return load(fileContent, {
+        filename: fileName,
+        json: false,
+    })
+}
+
 // @ts-ignore
 function postprocess(messages: Linter.LintMessage[][], fileName: string): Linter.LintMessage[] {
     // takes a Message[][] and filename
@@ -24,21 +36,16 @@ function postprocess(messages: Linter.LintMessage[][], fileName: string): Linter
     /*
      * YAML Lint by Validation
      */
-
     let linter_messages: Linter.LintMessage[] = []
 
     const fileContent = fileContents.get(fileName)
     if (fileContent !== undefined) {
-        // Use js-yaml for reading the yaml file
         // Get document, or throw exception on error
-        let doc: ReturnType<typeof load>
+        let doc: LoadYamlValue
         try {
-            doc = load(fileContent, {
-                filename: fileName,
-                json: false,
-            })
+            doc = loadYaml(fileContent, fileName)
         } catch (e) {
-            const { message, mark } = e as { message: string; mark: { buffer: string; line: number; column: number } }
+            const { message, mark } = e as LoadYamlException
             return [
                 {
                     ruleId: "invalid-yaml",
