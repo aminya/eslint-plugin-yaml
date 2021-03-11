@@ -1,5 +1,5 @@
 import { load } from "js-yaml"
-import { JSHINT as jshint } from "jshint"
+import { JSHINT as jshint, LintError as JsHintLintErrors } from "jshint"
 import type { Linter } from "eslint"
 
 /*
@@ -28,6 +28,15 @@ function loadYaml(fileContent: string, fileName: string): LoadYamlValue {
         filename: fileName,
         json: false,
     })
+}
+
+/** YAML Lint via JSON (converting to json and linting using jshint) */
+function lintJSON(yamlDoc: LoadYamlValue): JsHintLintErrors[] {
+    const yaml_json = JSON.stringify(yamlDoc, null, 2)
+    jshint(yaml_json)
+    const data = jshint.data()
+    const errors = data?.errors ?? []
+    return errors
 }
 
 /*
@@ -80,12 +89,7 @@ function postprocess(messages: Linter.LintMessage[][], fileName: string): Linter
         /*
          * YAML Lint via JSON
          */
-        // Converting to json and linting using eslint-json
-        const yaml_json = JSON.stringify(doc, null, 2)
-        jshint(yaml_json)
-        const data = jshint.data()
-        const errors = data?.errors ?? []
-
+        const errors = lintJSON(doc)
         linter_messages = errors.map((error) => {
             return {
                 ruleId: "bad-yaml",
