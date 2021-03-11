@@ -91,13 +91,14 @@ function postprocess(messages: Linter.LintMessage[][], fileName: string): Linter
          */
         const errors = lintJSON(doc)
         linter_messages = errors.map((error) => {
+            const { reason, evidence, line, character } = error
             return {
                 ruleId: "bad-yaml",
                 severity: 2,
-                message: error.reason,
-                source: error.evidence,
-                line: error.line,
-                column: error.character,
+                message: reason,
+                source: evidence,
+                line,
+                column: character,
             }
         })
 
