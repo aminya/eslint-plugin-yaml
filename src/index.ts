@@ -1,17 +1,6 @@
-//------------------------------------------------------------------------------
-// Requirements
-//------------------------------------------------------------------------------
-
 import { load } from "js-yaml"
-
 import { JSHINT as jshint } from "jshint"
-
-// types
-import { Linter } from "eslint"
-
-//------------------------------------------------------------------------------
-// Plugin Definition
-//------------------------------------------------------------------------------
+import type { Linter } from "eslint"
 
 // filename -> fileContent
 const fileContents = new Map<string, string>()
@@ -69,10 +58,9 @@ function postprocess(messages: Linter.LintMessage[][], fileName: string): Linter
         const yaml_json = JSON.stringify(doc, null, 2)
         jshint(yaml_json)
         const data = jshint.data()
-        const errors = (data && data.errors) || []
+        const errors = data?.errors ?? []
 
         linter_messages = errors
-            .filter((e) => Boolean(e))
             .map((error) => {
                 return {
                     ruleId: "bad-yaml",
