@@ -19,7 +19,8 @@ function cacheYaml(fileName: string, text: string) {
 }
 
 type LoadYamlValue = ReturnType<typeof load>
-type LoadYamlException = { message: string; mark: { buffer: string; line: number; column: number } }
+// it seems mark can be undefined issue #67
+type LoadYamlException = { message: string; mark?: { buffer: string; line: number; column: number } }
 
 /** Use js-yaml for reading the yaml file */
 function loadYaml(fileContent: string, fileName: string): LoadYamlValue {
@@ -79,9 +80,9 @@ function postprocess(messages: Linter.LintMessage[][], fileName: string): Linter
                     ruleId: "invalid-yaml",
                     severity: 2,
                     message,
-                    source: mark.buffer,
-                    line: mark.line,
-                    column: mark.column,
+                    source: mark?.buffer,
+                    line: mark?.line ?? 0,
+                    column: mark?.column ?? 0,
                 },
             ]
         }
