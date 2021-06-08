@@ -20,6 +20,11 @@ jobs:
         with:
           node-version: ${{ matrix.version }}
 
+      - name: Setup PNPM
+        uses: pnpm/action-setup@master
+        with:
+            version: latest
+
       - name: Install dependencies
         run: |
           npm install
