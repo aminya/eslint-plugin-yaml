@@ -52,8 +52,8 @@ or add `yaml` to the plugins section of your `.eslintrc` configuration file. You
 
 ```json
 {
-    "plugins": ["yaml"],
-    "extends": ["plugin:yaml/recommended"]
+  "plugins": ["yaml"],
+  "extends": ["plugin:yaml/recommended"]
 }
 ```
 

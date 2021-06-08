@@ -5,12 +5,12 @@ metadata:
   namespace: space
 spec:
   rules:
-  - host: hostname.com
-    http:
-      paths:
-      - backend:
-          serviceName: service
-          servicePort: 80
+    - host: hostname.com
+      http:
+        paths:
+          - backend:
+              serviceName: service
+              servicePort: 80
 ---
 apiVersion: extensions/v1beta1
 kind: Ingress
@@ -19,9 +19,9 @@ metadata:
   namespace: space
 spec:
   rules:
-  - host: hostname-nonlive.com
-    http:
-      paths:
-      - backend:
-          serviceName: service-b
-          servicePort: 80
+    - host: hostname-nonlive.com
+      http:
+        paths:
+          - backend:
+              serviceName: service-b
+              servicePort: 80

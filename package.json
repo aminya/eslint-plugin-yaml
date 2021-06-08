@@ -5,10 +5,12 @@
   "version": "0.4.3",
   "author": "Amin Yahyaabadi, Peter deHaan",
   "scripts": {
-    "format": "prettier --write .",
+    "lint": "eslint . --fix",
+    "test.lint": "eslint .",
+    "format": "prettier . --write",
+    "test.format": "prettier . --check",
     "test-link": "pnpm link .",
     "test": "eslint --ext yml ./spec ./.github",
-    "lint": "eslint .",
     "build": "tsc -p src/tsconfig.json",
     "prepare": "npm run build"
   },
@@ -53,11 +55,8 @@
     "eslint": "latest",
     "eslint-config-atomic": "^1.15.3",
     "prettier": "latest",
+    "prettier-config-atomic": "^2.0.5",
     "typescript": "latest"
   },
-  "prettier": {
-    "semi": false,
-    "tabWidth": 4,
-    "printWidth": 120
-  }
+  "prettier": "prettier-config-atomic"
 }
