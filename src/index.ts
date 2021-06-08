@@ -1,4 +1,4 @@
-import { load } from "js-yaml"
+import { loadAll } from "js-yaml"
 import { JSHINT as jshint, LintError as JsHintLintErrors } from "jshint"
 import type { Linter } from "eslint"
 
@@ -18,21 +18,21 @@ function cacheYaml(fileName: string, text: string) {
     fileContents.set(fileName, text)
 }
 
-type LoadYamlValue = ReturnType<typeof load>
+type LoadYamlValue = any[]
 // it seems mark can be undefined issue #67
 type LoadYamlException = { message: string; mark?: { buffer: string; line: number; column: number } }
 
 /** Use js-yaml for reading the yaml file */
 function loadYaml(fileContent: string, fileName: string): LoadYamlValue {
     // Get document, or throw exception on error
-    return load(fileContent, {
+    return loadAll(fileContent, undefined, {
         filename: fileName,
         json: false,
     })
 }
 
 /** YAML Lint via JSON (converting to json and linting using jshint) */
-function lintJSON(yamlDoc: LoadYamlValue): JsHintLintErrors[] {
+function lintJSON(yamlDoc: LoadYamlValue[0]): JsHintLintErrors[] {
     const yaml_json = JSON.stringify(yamlDoc, null, 2)
     jshint(yaml_json)
     const data = jshint.data()
@@ -70,9 +70,9 @@ function postprocess(messages: Linter.LintMessage[][], fileName: string): Linter
     const fileContent = fileContents.get(fileName)
     if (fileContent !== undefined) {
         // Get document, or throw exception on error
-        let yamlDoc: LoadYamlValue | undefined
+        let yamlDocs: LoadYamlValue | undefined
         try {
-            yamlDoc = loadYaml(fileContent, fileName)
+            yamlDocs = loadYaml(fileContent, fileName)
         } catch (e) {
             const { message, mark } = e as LoadYamlException
             return [
@@ -86,12 +86,12 @@ function postprocess(messages: Linter.LintMessage[][], fileName: string): Linter
                 },
             ]
         }
-        // at this point yamlDoc is defined
+        // at this point yamlDocs is defined
 
         /*
          * YAML Lint via JSON
          */
-        const errors = lintJSON(yamlDoc as LoadYamlValue)
+        const errors = yamlDocs.map(yamlDoc => lintJSON(yamlDoc)).flat()
         linter_messages = errors.map((error) => {
             const { reason, evidence, line, character } = error
             return {
