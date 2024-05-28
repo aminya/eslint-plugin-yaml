@@ -11,7 +11,6 @@ jobs:
       fail-fast: false
       matrix:
         node:
-          - 12
           - 22
     steps:
       - uses: actions/checkout@v2
