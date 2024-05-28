@@ -14,4 +14,4 @@ package-lock.json
 *.tsbuildinfo
 
 # Build directories
-lib
+dist

@@ -5,34 +5,33 @@ on:
 
 jobs:
   Test:
-    if: "!contains(github.event.head_commit.message, '[skip ci]')"
+    if: ${{ !contains(github.event.head_commit.message, '[skip ci]') }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
         node:
-          - 11
           - 12
-          - 14
+          - 22
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v2
         with:
-          node-version: ${{ matrix.version }}
+          node-version: ${{ matrix.node }}
 
       - name: Setup PNPM
         uses: pnpm/action-setup@master
         with:
-            version: latest
+          version: latest
 
       - name: Install dependencies
         run: |
-          npm install
+          pnpm install
 
       - name: Run tests 👩🏾‍💻
         run: |
-          npm run test-link
-          npm run test
+          pnpm run test-link
+          pnpm run test
 
       - name: Lint ✨
-        run: npm run lint
+        run: pnpm run lint
