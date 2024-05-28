@@ -4,4 +4,4 @@ pnpm-lock.yaml
 changelog.md
 coverage
 build
-lib
+dist
