@@ -1,6 +1,6 @@
 import { loadAll } from "js-yaml"
 import { JSHINT as jshint, type LintError as JsHintLintErrors } from "jshint"
-import type { Linter } from "eslint"
+import type { Linter, ESLint } from "eslint"
 
 /*
 ██    ██ ████████ ██ ██      ███████
@@ -124,16 +124,21 @@ export const processors = {
     preprocess,
     postprocess,
   },
-}
+} satisfies ESLint.Plugin["processors"]
 
 export const configs = {
   recommended: {
-    ignorePatterns: ["!.github"],
-    overrides: [
-      {
-        plugins: ["yaml"],
-        files: ["*.yaml", "*.yml"],
-      },
-    ],
+    files: ["*.yaml", "*.yml"],
+    ignores: ["!.github", "pnpm-lock.yaml"],
+    plugins: {
+      yaml: {
+        processors,
+      }
+    },
   },
+} as { recommended: Linter.FlatConfig } satisfies ESLint.Plugin["configs"]
+
+export default {
+  processors,
+  configs,
 }
