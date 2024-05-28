@@ -26,6 +26,6 @@
     "importHelpers": false,
     "outDir": "./dist"
   },
-  "include": ["src/**/*.ts"],
+  "include": ["src/**/*.ts", "src/index.cts"],
   "compileOnSave": false
 }
