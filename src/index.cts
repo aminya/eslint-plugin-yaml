@@ -115,9 +115,9 @@ function postprocess(_messages: Linter.LintMessage[][], fileName: string): Linte
   return linter_messages
 }
 
-const processors = {
+export const processors = {
   // add your processors here
-  yaml: {
+  [pkg.name]: {
     meta: {
       name: pkg.name,
       version: pkg.version,
@@ -147,29 +147,33 @@ const plugin = {
   configs: {},
 } satisfies ESLint.Plugin
 
+const newConfig: Linter.FlatConfig = {
+  name: `${pkg.name}/recommended}`,
+  files: ["**/*.{yaml,yaml}", "!**/node_modules/**", "!**/pnpm-lock.yaml", "**/.github/**.{yml,yaml}"],
+  processor: {
+    name: pkg.name,
+    preprocess,
+    postprocess,
+  },
+  plugins: {
+    [pkg.name]: plugin,
+  },
+}
+
+const legacyConfig: Linter.Config = {
+  overrides: [
+    {
+      plugins: [pkg.name],
+      files: ["**/*.yml", "**/*.yaml"],
+      processor: `yaml/${pkg.name}`,
+    },
+  ],
+}
+
 plugin.configs = {
-  recommended: {
-    name: "eslint-plugin-yaml-recommended",
-    files: ["**/*.{yaml,yaml}", "!**/node_modules/**", "!**/pnpm-lock.yaml", "**/.github/**.{yml,yaml}"],
-    processor: {
-      preprocess,
-      postprocess,
-    },
-    plugins: {
-      yaml: plugin,
-    },
-  },
-  "recommended-legacy": {
-    plugins: ["yaml"],
-    ignorePatterns: ["!.github"],
-    overrides: [
-      {
-        files: ["**/*.{yaml,yml}"],
-        processor: "yaml",
-      },
-    ],
-  },
-} as { recommended: Linter.FlatConfig } satisfies ESLint.Plugin["configs"]
+  recommended: newConfig,
+  legacy: legacyConfig,
+} as { recommended: Linter.FlatConfig; legacy: Linter.Config } satisfies ESLint.Plugin["configs"]
 
 export default plugin
 module.exports = plugin

@@ -39,9 +39,9 @@ Add the following to the `overrides` section of `.eslintrc` for yaml files:
 ```json
 "overrides" : [
     {
-      "files": ["*.yaml", "*.yml"],
+      "files": ["**/*.yaml", "**/*.yml"],
       "plugins": ["yaml"],
-      "extends": ["plugin:yaml/recommended-legacy"]
+      "extends": ["plugin:yaml/legacy"]
     }
 ]
 ```
@@ -67,7 +67,7 @@ or add `yaml` to the plugins section of your `.eslintrc` configuration file. You
 ```json
 {
   "plugins": ["yaml"],
-  "extends": ["plugin:yaml/recommended"]
+  "extends": ["plugin:yaml/legacy"]
 }
 ```
 
