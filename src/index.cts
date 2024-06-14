@@ -1,6 +1,7 @@
 import { loadAll } from "js-yaml"
 import { JSHINT as jshint, type LintError as JsHintLintErrors } from "jshint"
 import type { Linter, ESLint } from "eslint"
+import pkg from "../package.json"
 
 /*
 ██    ██ ████████ ██ ██      ███████
@@ -114,31 +115,61 @@ function postprocess(_messages: Linter.LintMessage[][], fileName: string): Linte
   return linter_messages
 }
 
-export const processors = {
+const processors = {
   // add your processors here
-  ".yml": {
-    preprocess,
-    postprocess,
-  },
-  ".yaml": {
+  yaml: {
+    meta: {
+      name: pkg.name,
+      version: pkg.version,
+    },
     preprocess,
     postprocess,
   },
 } satisfies ESLint.Plugin["processors"]
 
-export const configs = {
+const meta = {
+  name: pkg.name,
+  version: pkg.version,
+  type: "problem",
+  docs: {
+    description: "YAML linting",
+    category: "Parsing Issues",
+    recommended: false,
+    url: "https://github.com/aminya/eslint-plugin-yaml",
+  },
+  fixable: "code",
+  schema: [],
+}
+
+const plugin = {
+  meta,
+  processors,
+  configs: {},
+} satisfies ESLint.Plugin
+
+plugin.configs = {
   recommended: {
-    files: ["*.yaml", "*.yml"],
-    ignores: ["!.github", "pnpm-lock.yaml"],
-    plugins: {
-      yaml: {
-        processors,
-      }
+    name: "eslint-plugin-yaml-recommended",
+    files: ["**/*.{yaml,yaml}", "!**/node_modules/**", "!**/pnpm-lock.yaml", "**/.github/**.{yml,yaml}"],
+    processor: {
+      preprocess,
+      postprocess,
     },
+    plugins: {
+      yaml: plugin,
+    },
+  },
+  "recommended-legacy": {
+    plugins: ["yaml"],
+    ignorePatterns: ["!.github"],
+    overrides: [
+      {
+        files: ["**/*.{yaml,yml}"],
+        processor: "yaml",
+      },
+    ],
   },
 } as { recommended: Linter.FlatConfig } satisfies ESLint.Plugin["configs"]
 
-export default {
-  processors,
-  configs,
-}
+export default plugin
+module.exports = plugin

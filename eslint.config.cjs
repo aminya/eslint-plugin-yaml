@@ -1,5 +1,4 @@
 const pluginYaml = require("./dist/index.cjs")
 
-module.exports = {
-  ...pluginYaml.configs.recommended,
-}
+/** @type {import("eslint").Linter.FlatConfig[]} */
+module.exports = [pluginYaml.configs.recommended]

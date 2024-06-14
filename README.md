@@ -6,19 +6,33 @@ Lint YAML files
 
 You'll first need to install [ESLint](http://eslint.org):
 
-```
-$ npm i eslint --save-dev
-```
-
 Next, install `eslint-plugin-yaml`:
 
-```
-$ npm install eslint-plugin-yaml --save-dev
+```shell
+npm install eslint-plugin-yaml --save-dev
 ```
 
-**Note:** If you installed ESLint globally (using the `-g` flag) then you must also install `eslint-plugin-yaml` globally.
+## Usage
 
-## Usage - method 1
+### Eslint 9 and above
+
+Add the following to `eslint.config.cjs`:
+
+```js
+const pluginYaml = require("esling-plugin-yaml")
+
+module.exports = [pluginYaml.configs.recommended]
+```
+
+or to `eslint.config.mjs`:
+
+```js
+import pluginYaml from "esling-plugin-yaml"
+
+export default [pluginYaml.configs.recommended]
+```
+
+### Eslint 8 and below
 
 Add the following to the `overrides` section of `.eslintrc` for yaml files:
 
@@ -27,26 +41,26 @@ Add the following to the `overrides` section of `.eslintrc` for yaml files:
     {
       "files": ["*.yaml", "*.yml"],
       "plugins": ["yaml"],
-      "extends": ["plugin:yaml/recommended"]
+      "extends": ["plugin:yaml/recommended-legacy"]
     }
 ]
 ```
 
 and run it for all the files:
 
-```
+```shell
 eslint .
 ```
 
 or:
 
-```
+```shell
 eslint example.yaml
 ```
 
 See spec folder for an example of eslint config file.
 
-## Usage - method 2
+### Eslint 8 and below (alternative)
 
 or add `yaml` to the plugins section of your `.eslintrc` configuration file. You can omit the `eslint-plugin-` prefix:
 
@@ -59,9 +73,7 @@ or add `yaml` to the plugins section of your `.eslintrc` configuration file. You
 
 You can run ESLint on individual YAML files or you can use the `--ext` flag to add YAML files to the list.
 
-```
+```shell
 eslint . --ext .yaml --ext .js
 eslint example.yaml
 ```
-
-By default, this plugin lints `.github` folder as well.

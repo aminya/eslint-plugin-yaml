@@ -24,7 +24,8 @@
     "moduleResolution": "node",
     "skipLibCheck": true,
     "importHelpers": false,
-    "outDir": "./dist"
+    "outDir": "./dist",
+    "resolveJsonModule": true
   },
   "include": ["src/**/*.ts", "src/index.cts"],
   "compileOnSave": false
