@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "resolveJsonModule": true,
     "strict": true,
     "strictNullChecks": true,
     "noUnusedLocals": true,
@@ -24,8 +25,7 @@
     "moduleResolution": "node",
     "skipLibCheck": true,
     "importHelpers": false,
-    "outDir": "./dist"
+    "noEmit": true
   },
-  "include": ["src/**/*.ts"],
   "compileOnSave": false
 }
