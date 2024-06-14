@@ -1,6 +1,6 @@
 {
   "name": "eslint-plugin-yaml",
-  "version": "0.5.0",
+  "version": "1.0.0",
   "description": "Lint YAML files",
   "homepage": "https://github.com/aminya/eslint-plugin-yaml#readme",
   "bugs": {
