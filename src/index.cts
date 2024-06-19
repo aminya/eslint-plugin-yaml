@@ -2,64 +2,32 @@ import { loadAll } from "js-yaml"
 import { JSHINT as jshint, type LintError as JsHintLintErrors } from "jshint"
 import type { Linter, ESLint } from "eslint"
 import pkg from "../package.json"
+import path from "path"
 
-/*
-██    ██ ████████ ██ ██      ███████
-██    ██    ██    ██ ██      ██
-██    ██    ██    ██ ██      ███████
-██    ██    ██    ██ ██           ██
- ██████     ██    ██ ███████ ███████
-*/
+function isYaml(fileName: string) {
+  const fileExtension = path.extname(fileName)
+  return [".yaml", ".yml"].includes(fileExtension)
+}
 
 // filename -> fileContent
 const fileContents = new Map<string, string>()
 
-/** Takes text of the file and filename */
-function cacheYaml(fileName: string, text: string) {
+function preprocess(text: string, fileName: string): Linter.ProcessorFile[] {
+  if (!isYaml(fileName)) {
+    return []
+  }
+
   fileContents.set(fileName, text)
-}
-
-type LoadYamlValue = unknown[]
-// it seems mark can be undefined issue #67
-type LoadYamlException = {
-  message: string
-  mark?: { buffer: string; line: number; column: number }
-}
-
-/** Use js-yaml for reading the yaml file */
-function loadYaml(fileContent: string, fileName: string): LoadYamlValue {
-  // Get document, or throw exception on error
-  return loadAll(fileContent, undefined, {
-    filename: fileName,
-    json: false,
-  })
-}
-
-/** YAML Lint via JSON (converting to json and linting using jshint) */
-function lintJSON(yamlDoc: LoadYamlValue[0]): JsHintLintErrors[] {
-  const yaml_json = JSON.stringify(yamlDoc, null, 2)
-  jshint(yaml_json)
-  const data = jshint.data()
-  const errors = data?.errors ?? []
-  return errors
-}
-
-/*
-███████ ██   ██ ██████   ██████  ██████  ████████ ███████
-██       ██ ██  ██   ██ ██    ██ ██   ██    ██    ██
-█████     ███   ██████  ██    ██ ██████     ██    ███████
-██       ██ ██  ██      ██    ██ ██   ██    ██         ██
-███████ ██   ██ ██       ██████  ██   ██    ██    ███████
-*/
-
-function preprocess(text: string, fileName: string) {
-  cacheYaml(fileName, text)
 
   // return an array of code blocks to lint
   return [{ text, filename: fileName }]
 }
 
 function postprocess(_messages: Linter.LintMessage[][], fileName: string): Linter.LintMessage[] {
+  if (!isYaml(fileName)) {
+    return []
+  }
+
   // takes a Message[][] and filename
   // `messages` argument contains two-dimensional array of Message objects
   // where each top-level array item contains array of lint messages related
@@ -77,6 +45,12 @@ function postprocess(_messages: Linter.LintMessage[][], fileName: string): Linte
     try {
       yamlDocs = loadYaml(fileContent, fileName)
     } catch (e) {
+      // it seems mark can be undefined issue #67
+      type LoadYamlException = {
+        message: string
+        mark?: { buffer: string; line: number; column: number }
+      }
+
       const { message, mark } = e as LoadYamlException
       return [
         {
@@ -115,6 +89,26 @@ function postprocess(_messages: Linter.LintMessage[][], fileName: string): Linte
   return linter_messages
 }
 
+type LoadYamlValue = unknown[]
+
+/** Use js-yaml for reading the yaml file */
+function loadYaml(fileContent: string, fileName: string): LoadYamlValue {
+  // Get document, or throw exception on error
+  return loadAll(fileContent, undefined, {
+    filename: fileName,
+    json: false,
+  })
+}
+
+/** YAML Lint via JSON (converting to json and linting using jshint) */
+function lintJSON(yamlDoc: LoadYamlValue[0]): JsHintLintErrors[] {
+  const yaml_json = JSON.stringify(yamlDoc, null, 2)
+  jshint(yaml_json)
+  const data = jshint.data()
+  const errors = data?.errors ?? []
+  return errors
+}
+
 export const processors = {
   // add your processors here
   [pkg.name]: {
@@ -149,7 +143,7 @@ const plugin = {
 
 const newConfig: Linter.FlatConfig = {
   name: `${pkg.name}/recommended}`,
-  files: ["**/*.{yaml,yaml}", "!**/node_modules/**", "!**/pnpm-lock.yaml", "**/.github/**.{yml,yaml}"],
+  files: ["**/*.yaml", "**/*.yml", "!**/node_modules/**", "!**/pnpm-lock.yaml", "**/.github/**.{yml,yaml}"],
   processor: {
     name: pkg.name,
     preprocess,
@@ -164,7 +158,7 @@ const legacyConfig: Linter.Config = {
   overrides: [
     {
       plugins: [pkg.name],
-      files: ["**/*.yml", "**/*.yaml"],
+      files: ["**/*.yml", "**/*.yaml", "!**/node_modules/**", "!**/pnpm-lock.yaml", "**/.github/**.{yml,yaml}"],
       processor: `yaml/${pkg.name}`,
     },
   ],
