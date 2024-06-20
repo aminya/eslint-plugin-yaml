@@ -1,6 +1,6 @@
 {
   "name": "eslint-plugin-yaml",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Lint YAML files",
   "homepage": "https://github.com/aminya/eslint-plugin-yaml#readme",
   "bugs": {
@@ -13,19 +13,30 @@
   "license": "MIT",
   "author": "Amin Yahyaabadi, Peter deHaan",
   "type": "module",
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs"
+    }
+  },
   "main": "dist/index.cjs",
+  "module": "dist/index.mjs",
+  "source": "src/index.mts",
   "files": [
     "src/**",
     "dist/**"
   ],
   "scripts": {
-    "build": "tsc -p ./src/tsconfig.json",
+    "build": "tsc -p ./src/tsconfig.esm.json && tsc -p ./src/tsconfig.json ",
     "format": "prettier . --write",
-    "lint": "eslint . --fix",
-    "test": "pnpm run build && eslint spec/**/*.{yml,yaml} --config ./eslint.config.cjs",
-    "test.eslint8": "pnpm run build && pnpm link . && cross-env ESLINT_USE_FLAT_CONFIG=false npx eslint@8 spec/**/*.{yml,yaml} --config .eslintrc.cjs",
+    "link.self": "pnpm link .",
+    "lint": "run-s link.self build && eslint . --fix",
+    "test": "run-s link.self build && run-p test.mjs test.cjs test.eslint8 test.format test.lint",
+    "test.cjs": "eslint spec/**/*.{yml,yaml} --config ./eslint.config.cjs",
+    "test.eslint8": "cross-env ESLINT_USE_FLAT_CONFIG=false npx eslint@8 spec/**/*.{yml,yaml} --config .eslintrc.cjs",
     "test.format": "prettier . --check",
-    "test.lint": "eslint ."
+    "test.lint": "eslint .",
+    "test.mjs": "eslint spec/**/*.{yml,yaml} --config ./eslint.config.mjs"
   },
   "dependencies": {
     "js-yaml": "^4.1.0",
@@ -35,11 +46,12 @@
     "@types/eslint": "8.56.10",
     "@types/js-yaml": "^4.0.9",
     "@types/jshint": "^2.12.4",
-    "@typescript-eslint/eslint-plugin": "7.13.0",
-    "@typescript-eslint/parser": "7.13.0",
+    "@typescript-eslint/eslint-plugin": "7.13.1",
+    "@typescript-eslint/parser": "7.13.1",
     "cross-env": "^7.0.3",
-    "eslint": "^9",
-    "eslint-config-atomic": "^1.21.2",
+    "eslint": "^9.5.0",
+    "eslint-config-atomic": "^1.22.0",
+    "npm-run-all2": "^6.2.0",
     "prettier": "^3.3.2",
     "prettier-config-atomic": "^4.0.0",
     "typescript": "^5.4.5"

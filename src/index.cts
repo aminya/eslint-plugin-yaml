@@ -109,7 +109,7 @@ function lintJSON(yamlDoc: LoadYamlValue[0]): JsHintLintErrors[] {
   return errors
 }
 
-export const processors = {
+const processors = {
   // add your processors here
   [pkg.name]: {
     meta: {
@@ -138,10 +138,13 @@ const meta = {
 const plugin = {
   meta,
   processors,
-  configs: {},
+  configs: {
+    recommended: {} as Linter.FlatConfig,
+    legacy: {} as Linter.Config,
+  },
 } satisfies ESLint.Plugin
 
-const newConfig: Linter.FlatConfig = {
+const recommendedConfig: Linter.FlatConfig = {
   name: `${pkg.name}/recommended}`,
   files: ["**/*.yaml", "**/*.yml", "!**/node_modules/**", "!**/pnpm-lock.yaml", "**/.github/**.{yml,yaml}"],
   processor: {
@@ -154,6 +157,8 @@ const newConfig: Linter.FlatConfig = {
   },
 }
 
+plugin.configs.recommended = recommendedConfig
+
 const legacyConfig: Linter.Config = {
   overrides: [
     {
@@ -164,10 +169,8 @@ const legacyConfig: Linter.Config = {
   ],
 }
 
-plugin.configs = {
-  recommended: newConfig,
-  legacy: legacyConfig,
-} as { recommended: Linter.FlatConfig; legacy: Linter.Config } satisfies ESLint.Plugin["configs"]
+plugin.configs.legacy = legacyConfig
 
 export default plugin
 module.exports = plugin
+module.exports.default = plugin
