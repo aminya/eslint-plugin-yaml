@@ -109,7 +109,7 @@ function lintJSON(yamlDoc: LoadYamlValue[0]): JsHintLintErrors[] {
   return errors
 }
 
-export const processors = {
+const processors = {
   // add your processors here
   [pkg.name]: {
     meta: {
@@ -173,3 +173,4 @@ plugin.configs.legacy = legacyConfig
 
 export default plugin
 module.exports = plugin
+module.exports.default = plugin
