@@ -19,7 +19,7 @@ npm install eslint-plugin-yaml --save-dev
 Add the following to `eslint.config.cjs`:
 
 ```js
-const pluginYaml = require("esling-plugin-yaml").default
+const pluginYaml = require("eslint-plugin-yaml").default
 
 module.exports = [pluginYaml.configs.recommended]
 ```
@@ -27,7 +27,7 @@ module.exports = [pluginYaml.configs.recommended]
 or to `eslint.config.mjs`:
 
 ```js
-import pluginYaml from "esling-plugin-yaml"
+import pluginYaml from "eslint-plugin-yaml"
 
 export default [pluginYaml.configs.recommended]
 ```
