@@ -33,12 +33,15 @@
     "lint": "run-s link.self build && eslint . --fix",
     "test": "run-s link.self build && run-p test.mjs test.cjs test.eslint8 test.format test.lint",
     "test.cjs": "eslint spec/**/*.{yml,yaml} --config ./eslint.config.cjs",
-    "test.eslint8": "cross-env ESLINT_USE_FLAT_CONFIG=false npx eslint@8 spec/**/*.{yml,yaml} --config .eslintrc.cjs",
+    "test.eslint8": "cross-env ESLINT_USE_FLAT_CONFIG=false npx -y eslint@8 spec/**/*.{yml,yaml} --config .eslintrc.cjs",
     "test.format": "prettier . --check",
     "test.lint": "eslint .",
     "test.mjs": "eslint spec/**/*.{yml,yaml} --config ./eslint.config.mjs"
   },
   "dependencies": {
+    "@types/estree": "^1.0.7",
+    "eslint-plugin-yaml": "link:",
+    "estree-util-value-to-estree": "^3.3.2",
     "js-yaml": "^4.1.0",
     "jshint": "^2.13.6"
   },
@@ -67,5 +70,10 @@
     "yml",
     "eslint-plugin-yaml",
     "eslint-plugin-yml"
-  ]
+  ],
+  "pnpm": {
+    "overrides": {
+      "eslint-plugin-yaml": "link:"
+    }
+  }
 }

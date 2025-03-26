@@ -1,26 +1,78 @@
 import { loadAll } from "js-yaml"
 import { JSHINT as jshint, type LintError as JsHintLintErrors } from "jshint"
-import type { Linter, ESLint } from "eslint"
+import type { Linter, ESLint, AST } from "eslint"
 import pkg from "../package.json"
 import path from "path"
+import type * as estree from "estree"
+import { valueToEstree } from "estree-util-value-to-estree"
+
+// it seems mark can be undefined issue #67
+type LoadYamlException = {
+  message: string
+  mark?: { buffer: string; line: number; column: number }
+}
+
+/** Content -> value | errors */
+type LoadYamlValue = {
+  value: unknown[]
+  errors: Linter.LintMessage[]
+}
+const values = new Map<string, LoadYamlValue>()
+
+/** Parser for YAML files. */
+const parser: Linter.ParserModule = {
+  parseForESLint(code: string, options?: any): Linter.ESLintParseResult {
+    const ast: AST.Program = {
+      type: "Program",
+      body: [],
+      sourceType: "module",
+      tokens: [],
+      comments: [],
+      range: [0, code.length],
+      loc: {
+        start: { line: 1, column: 0 },
+        end: {
+          line: code.split("\n")?.length ?? 1,
+          column: code.split("\n")?.slice(-1)?.[0]?.length ?? 0,
+        },
+      },
+    }
+
+    try {
+      const yamlValue = loadYaml(code, options?.filename)
+      const statement: estree.ExpressionStatement = {
+        type: "ExpressionStatement",
+        expression: valueToEstree(yamlValue),
+      }
+      ast.body.push(statement)
+      values.set(code, {
+        value: yamlValue,
+        errors: [],
+      })
+    } catch (err) {
+      const { message, mark } = err as LoadYamlException
+      values.set(code, {
+        value: [],
+        errors: [
+          {
+            ruleId: "invalid-yaml",
+            severity: 2,
+            message,
+            source: mark?.buffer,
+            line: mark?.line ?? 0,
+            column: mark?.column ?? 0,
+          },
+        ],
+      })
+    }
+
+    return { ast }
+  },
+}
 
 function isYaml(fileName: string) {
   const fileExtension = path.extname(fileName)
   return [".yaml", ".yml"].includes(fileExtension)
-}
-
-// filename -> fileContent
-const fileContents = new Map<string, string>()
-
-function preprocess(text: string, fileName: string): Linter.ProcessorFile[] {
-  if (!isYaml(fileName)) {
-    return []
-  }
-
-  fileContents.set(fileName, text)
-
-  // return an array of code blocks to lint
-  return [{ text, filename: fileName }]
 }
 
 function postprocess(_messages: Linter.LintMessage[][], fileName: string): Linter.LintMessage[] {
@@ -38,61 +90,41 @@ function postprocess(_messages: Linter.LintMessage[][], fileName: string): Linte
    */
   let linter_messages: Linter.LintMessage[] = []
 
-  const fileContent = fileContents.get(fileName)
-  if (fileContent !== undefined) {
-    // Get document, or throw exception on error
-    let yamlDocs: LoadYamlValue | undefined
-    try {
-      yamlDocs = loadYaml(fileContent, fileName)
-    } catch (e) {
-      // it seems mark can be undefined issue #67
-      type LoadYamlException = {
-        message: string
-        mark?: { buffer: string; line: number; column: number }
-      }
-
-      const { message, mark } = e as LoadYamlException
-      return [
-        {
-          ruleId: "invalid-yaml",
-          severity: 2,
-          message,
-          source: mark?.buffer,
-          line: mark?.line ?? 0,
-          column: mark?.column ?? 0,
-        },
-      ]
-    }
-    // at this point yamlDocs is defined
-
-    /*
-     * YAML Lint via JSON
-     */
-    const errors = yamlDocs.flatMap((yamlDoc) => lintJSON(yamlDoc))
-    linter_messages = errors.map((error) => {
-      const { reason, evidence, line, character } = error
-      return {
-        ruleId: "bad-yaml",
-        severity: 2,
-        message: reason,
-        source: evidence,
-        line,
-        column: character,
-      }
-    })
-
-    // empty cache
-    fileContents.delete(fileName)
+  const value = values.get(fileName)
+  if (value === undefined) {
+    // not parsed
+    values.delete(fileName)
+    return []
   }
 
-  // // you need to return a one-dimensional array of the messages you want to keep
+  if (value.errors.length > 0) {
+    values.delete(fileName)
+    return value.errors
+  }
+
+  /*
+   * YAML Lint via JSON
+   */
+  const errors = value.value.flatMap((yamlDoc) => lintJSON(yamlDoc))
+  linter_messages = errors.map((error) => {
+    const { reason, evidence, line, character } = error
+    return {
+      ruleId: "bad-yaml",
+      severity: 2,
+      message: reason,
+      source: evidence,
+      line,
+      column: character,
+    }
+  })
+
+  values.delete(fileName)
+  // need to return a one-dimensional array of the messages you want to keep
   return linter_messages
 }
 
-type LoadYamlValue = unknown[]
-
 /** Use js-yaml for reading the yaml file */
-function loadYaml(fileContent: string, fileName: string): LoadYamlValue {
+function loadYaml(fileContent: string, fileName?: string): unknown[] {
   // Get document, or throw exception on error
   return loadAll(fileContent, undefined, {
     filename: fileName,
@@ -101,7 +133,7 @@ function loadYaml(fileContent: string, fileName: string): LoadYamlValue {
 }
 
 /** YAML Lint via JSON (converting to json and linting using jshint) */
-function lintJSON(yamlDoc: LoadYamlValue[0]): JsHintLintErrors[] {
+function lintJSON(yamlDoc: LoadYamlValue["value"][0]): JsHintLintErrors[] {
   const yaml_json = JSON.stringify(yamlDoc, null, 2)
   jshint(yaml_json)
   const data = jshint.data()
@@ -116,7 +148,6 @@ const processors = {
       name: pkg.name,
       version: pkg.version,
     },
-    preprocess,
     postprocess,
   },
 } satisfies ESLint.Plugin["processors"]
@@ -149,11 +180,13 @@ const recommendedConfig: Linter.FlatConfig = {
   files: ["**/*.yaml", "**/*.yml", "!**/node_modules/**", "!**/pnpm-lock.yaml", "**/.github/**.{yml,yaml}"],
   processor: {
     name: pkg.name,
-    preprocess,
     postprocess,
   },
   plugins: {
     [pkg.name]: plugin,
+  },
+  languageOptions: {
+    parser,
   },
 }
 
