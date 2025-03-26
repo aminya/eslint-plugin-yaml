@@ -20,7 +20,6 @@ function getPackageJson(): { name: string; version: string } {
     }
   }
 }
-
 const pkg = getPackageJson()
 
 // it seems mark can be undefined issue #67
@@ -29,16 +28,17 @@ type LoadYamlException = {
   mark?: { buffer: string; line: number; column: number }
 }
 
-/** Content -> value | errors */
 type LoadYamlValue = {
   value: unknown[]
   errors: Linter.LintMessage[]
 }
+
+/** filePath -> value | errors */
 const values = new Map<string, LoadYamlValue>()
 
 /** Parser for YAML files. */
 const parser: Linter.ParserModule = {
-  parseForESLint(code: string, options?: any): Linter.ESLintParseResult {
+  parseForESLint(code: string, options?: { filePath?: string }): Linter.ESLintParseResult {
     const ast: AST.Program = {
       type: "Program",
       body: [],
@@ -56,7 +56,7 @@ const parser: Linter.ParserModule = {
     }
 
     try {
-      const yamlValue = loadYaml(code, options?.filename)
+      const yamlValue = loadYaml(code, options?.filePath)
       const statement: estree.ExpressionStatement = {
         type: "ExpressionStatement",
         expression: valueToEstree(yamlValue),
@@ -68,7 +68,8 @@ const parser: Linter.ParserModule = {
       })
     } catch (err) {
       const { message, mark } = err as LoadYamlException
-      values.set(code, {
+      const key = options?.filePath ?? code
+      values.set(key, {
         value: [],
         errors: [
           {
@@ -92,30 +93,28 @@ function isYaml(fileName: string) {
   return [".yaml", ".yml"].includes(fileExtension)
 }
 
-function postprocess(_messages: Linter.LintMessage[][], fileName: string): Linter.LintMessage[] {
-  if (!isYaml(fileName)) {
-    return []
-  }
-
+function postprocess(_messages: Linter.LintMessage[][], filePath: string): Linter.LintMessage[] {
   // takes a Message[][] and filename
   // `messages` argument contains two-dimensional array of Message objects
   // where each top-level array item contains array of lint messages related
   // to the text that was returned in array from preprocess() method
 
-  /*
-   * YAML Lint by Validation
-   */
-  let linter_messages: Linter.LintMessage[] = []
-
-  const value = values.get(fileName)
-  if (value === undefined) {
-    // not parsed
-    values.delete(fileName)
+  if (!isYaml(filePath)) {
     return []
   }
 
+  let value = values.get(filePath)
+  if (value === undefined) {
+    // search all the keys that end with filePath
+    const key = Array.from(values.keys()).find((key) => key.endsWith(filePath))
+    if (key === undefined) {
+      return [] // no value found
+    }
+    value = values.get(key)!
+  }
+
   if (value.errors.length > 0) {
-    values.delete(fileName)
+    values.delete(filePath)
     return value.errors
   }
 
@@ -123,7 +122,7 @@ function postprocess(_messages: Linter.LintMessage[][], fileName: string): Linte
    * YAML Lint via JSON
    */
   const errors = value.value.flatMap((yamlDoc) => lintJSON(yamlDoc))
-  linter_messages = errors.map((error) => {
+  const linter_messages: Linter.LintMessage[] = errors.map((error) => {
     const { reason, evidence, line, character } = error
     return {
       ruleId: "bad-yaml",
@@ -135,7 +134,7 @@ function postprocess(_messages: Linter.LintMessage[][], fileName: string): Linte
     }
   })
 
-  values.delete(fileName)
+  values.delete(filePath)
   // need to return a one-dimensional array of the messages you want to keep
   return linter_messages
 }
