@@ -1,10 +1,27 @@
 import { loadAll } from "js-yaml"
 import { JSHINT as jshint, type LintError as JsHintLintErrors } from "jshint"
 import type { Linter, ESLint, AST } from "eslint"
-import pkg from "../package.json" assert { type: "json" }
 import path from "path"
 import type * as estree from "estree"
 import { valueToEstree } from "estree-util-value-to-estree"
+import fs from "fs"
+import { fileURLToPath } from "url"
+
+function getPackageJson(): { name: string; version: string } {
+  try {
+    const dirname = typeof __dirname === "string" ? __dirname : path.dirname(fileURLToPath(import.meta.url))
+    const pkgPath = path.join(path.dirname(dirname), "package.json")
+    return JSON.parse(fs.readFileSync(pkgPath, "utf8"))
+  } catch (err) {
+    console.error(err)
+    return {
+      name: "eslint-plugin-yaml",
+      version: "1.0.3",
+    }
+  }
+}
+
+const pkg = getPackageJson()
 
 // it seems mark can be undefined issue #67
 type LoadYamlException = {
