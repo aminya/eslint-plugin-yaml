@@ -1,14 +1,14 @@
 {
   "compilerOptions": {
-    "resolveJsonModule": true,
     "strict": true,
     "strictNullChecks": true,
-    "noUnusedLocals": true,
+    "noUnusedLocals": false,
     "noUnusedParameters": true,
     "noImplicitReturns": true,
     "noImplicitAny": true,
     "noImplicitThis": true,
     "noFallthroughCasesInSwitch": true,
+    "forceConsistentCasingInFileNames": true,
     "declaration": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
@@ -16,16 +16,25 @@
     "inlineSourceMap": true,
     "inlineSources": true,
     "preserveSymlinks": true,
-    "removeComments": true,
-    "lib": ["ES2019"],
-    "target": "ES2019",
+    "removeComments": false,
+    "skipLibCheck": true,
+    "allowImportingTsExtensions": true,
+    "lib": [
+      // target Node.js 12 https://node.green/#ES2019
+      "ES2019",
+      // https://node.green/#ES2020-features-String-prototype-matchAll
+      "ES2020.String"
+    ],
+    "target": "ESNext",
+    "noEmit": true,
     "allowJs": true,
     "esModuleInterop": true,
-    "module": "commonjs",
+    "resolveJsonModule": true,
+    "module": "ESNext",
     "moduleResolution": "node",
-    "skipLibCheck": true,
     "importHelpers": false,
-    "noEmit": true
+    "outDir": "./dist"
   },
-  "compileOnSave": false
+  "compileOnSave": false,
+  "include": ["./src/**/*.ts", "vite.config.mts"]
 }
