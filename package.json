@@ -27,7 +27,7 @@
     "dist/**"
   ],
   "scripts": {
-    "build": "run-p build.modern build.legacy build.tsc",
+    "build": "run-s build.tsc && run-p build.modern build.legacy",
     "build.legacy": "vite build --mode legacy",
     "build.modern": "vite build --mode modern",
     "build.tsc": "tsc --pretty -p tsconfig.build.json",
