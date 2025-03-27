@@ -1,2 +1,2 @@
-import eslintPluginYaml from "./index.cjs"
+import eslintPluginYaml from "./index.js"
 export default eslintPluginYaml
