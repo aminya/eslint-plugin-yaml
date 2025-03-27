@@ -5,5 +5,5 @@
     "noEmit": false,
     "rootDir": "./src"
   },
-  "include": ["./src/index.mts"]
+  "include": ["./src/**/*"]
 }

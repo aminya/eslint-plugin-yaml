@@ -36,5 +36,5 @@
     "outDir": "./dist"
   },
   "compileOnSave": false,
-  "include": ["./src/**/*.ts", "vite.config.mts"]
+  "include": ["./src/**/*", "vite.config.mts"]
 }
