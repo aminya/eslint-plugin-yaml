@@ -26,6 +26,9 @@ export class YamlProcessor implements Linter.Processor<Linter.ProcessorFile> {
 
   /** The preprocess method is called by ESLint before the parser is run. */
   public preprocess(text: string, path: Path): Linter.ProcessorFile[] {
+    if (!this.isYaml(path)) {
+      return []
+    }
     return [{ text, filename: path }]
   }
 
