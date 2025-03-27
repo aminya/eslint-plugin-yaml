@@ -20,7 +20,7 @@ export class YamlLang implements Language {
   public fileType = "text" as const
   public lineStart = 0 as const
   public columnStart = 0 as const
-  public nodeTypeKey = "yaml" as const
+  public nodeTypeKey = "type" as const
 
   /** Map of file paths to their YAML value and warnings. */
   private parsedFiles = new Map<Path, LoadYamlValue>()
