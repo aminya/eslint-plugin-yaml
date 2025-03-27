@@ -143,20 +143,11 @@ export class YamlLang implements Language {
 
   private buildAst(yamlDocs: unknown[], ast: AST.Program) {
     const valueExpression = valueToEstree(yamlDocs)
-    // declare the yaml value as a const variable
-    const statement: estree.VariableDeclaration = {
-      type: "VariableDeclaration",
-      kind: "const",
-      declarations: [
-        {
-          type: "VariableDeclarator",
-          id: {
-            type: "Identifier",
-            name: "yaml",
-          },
-          init: valueExpression,
-        },
-      ],
+    
+    // declare the yaml value as a default export
+    const statement: estree.ModuleDeclaration = {
+      type: "ExportDefaultDeclaration",
+      declaration: valueExpression,
     }
     ast.body.push(statement)
 
