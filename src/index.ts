@@ -7,7 +7,11 @@ const pkg = getPackageJson()
 // Create singleton instance
 const yamlProcessor = new YamlProcessor()
 
-const parser: Linter.ParserModule = {
+const parser: Linter.ESTreeParser = {
+  meta: {
+    name: "yaml-eslint-parser",
+    version: pkg.version,
+  },
   parseForESLint: yamlProcessor.parseForESLint.bind(yamlProcessor),
 }
 
@@ -39,14 +43,14 @@ const plugin = {
   meta,
   processors,
   configs: {
-    recommended: {} as Linter.FlatConfig,
-    legacy: {} as Linter.Config,
+    recommended: {} as Linter.Config,
+    legacy: {} as Linter.LegacyConfig,
   },
 } satisfies ESLint.Plugin
 
 const files = ["**/*.yml", "**/*.yaml", "!**/node_modules/**", "!**/pnpm-lock.yaml", "**/.github/**.{yml,yaml}"]
 
-const recommendedConfig: Linter.FlatConfig = {
+const recommendedConfig: Linter.Config = {
   name: `${pkg.name}/recommended}`,
   files,
   processor: {
@@ -64,7 +68,7 @@ const recommendedConfig: Linter.FlatConfig = {
 
 plugin.configs.recommended = recommendedConfig
 
-const legacyConfig: Linter.Config = {
+const legacyConfig: Linter.LegacyConfig = {
   overrides: [
     {
       plugins: [pkg.name],
