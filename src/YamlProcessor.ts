@@ -81,7 +81,6 @@ export class YamlProcessor implements Linter.Processor<Linter.ProcessorFile> {
             ruleId: "invalid-yaml",
             severity: 2,
             message,
-            source: mark?.buffer,
             line: mark?.line ?? 0,
             column: mark?.column ?? 0,
           },
