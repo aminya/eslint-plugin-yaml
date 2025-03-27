@@ -1,5 +1,5 @@
 import { Linter, AST, SourceCode, Scope } from "eslint"
-import type { File, Language, ParseResult, LanguageOptions, LanguageContext, OkParseResult } from "@eslint/core"
+import type { File, Language, ParseResult, LanguageOptions, LanguageContext, OkParseResult, NotOkParseResult } from "@eslint/core"
 import type * as estree from "estree"
 import { valueToEstree } from "estree-util-value-to-estree"
 import { loadAll, YAMLException } from "js-yaml"
@@ -61,36 +61,18 @@ export class YamlLang implements Language {
       return {
         ok: false,
         errors: [],
-      }
+      } satisfies NotOkParseResult
     }
 
     // initialize AST
-    const ast: AST.Program = {
-      type: "Program",
-      body: [],
-      sourceType: "module",
-      tokens: [],
-      comments: [],
-      range: [0, file.body.length],
-      loc: {
-        start: { line: 1, column: 0 },
-        end: {
-          line: file.body.split("\n")?.length ?? 1,
-          column: file.body.split("\n")?.slice(-1)?.[0]?.length ?? 0,
-        },
-      },
-    }
+    const ast = this.initAst(file.body)
 
     try {
       // load YAML
       const { yamlDocs, warnings } = this.loadYaml(file.body, path)
 
-      // build AST
-      const statement: estree.ExpressionStatement = {
-        type: "ExpressionStatement",
-        expression: valueToEstree(yamlDocs),
-      }
-      ast.body.push(statement)
+      // build value expression
+      const scopeManager: Scope.ScopeManager = this.buildAst(yamlDocs, ast)
 
       // save warnings for postprocess
       this.parsedFiles.set(file.physicalPath, {
@@ -106,33 +88,12 @@ export class YamlLang implements Language {
         }),
       })
 
-      const scope: Scope.Scope = {
-        type: "module",
-        isStrict: false,
-        upper: null,
-        childScopes: [],
-        variables: [],
-        set: new Map(),
-        through: [],
-        block: ast,
-        references: [],
-        functionExpressionScope: false,
-        // @ts-expect-error
-        variableScope: null,
-      }
-      // scope.variableScope = scope
-      const scopeManager: Scope.ScopeManager = {
-        scopes: [scope],
-        globalScope: scope,
-        acquire: () => scope,
-        getDeclaredVariables: () => [],
-      }
 
       return {
         ok: true,
         ast,
         scopeManager,
-      }
+      } satisfies OkParseResult<estree.Program>
     } catch (err) {
       if (err instanceof YAMLException) {
         return {
@@ -145,7 +106,7 @@ export class YamlLang implements Language {
               column: err.mark?.column ?? 0,
             },
           ],
-        }
+        } satisfies NotOkParseResult
       }
 
       return {
@@ -158,8 +119,72 @@ export class YamlLang implements Language {
             column: 0,
           },
         ],
-      }
+      } satisfies NotOkParseResult
     }
+  }
+
+  private initAst(code: string): AST.Program {
+    return {
+      type: "Program",
+      body: [],
+      sourceType: "module",
+      tokens: [],
+      comments: [],
+      range: [0, code.length],
+      loc: {
+        start: { line: 1, column: 0 },
+        end: {
+          line: code.split("\n")?.length ?? 1,
+          column: code.split("\n")?.slice(-1)?.[0]?.length ?? 0,
+        },
+      },
+    }
+  }
+
+  private buildAst(yamlDocs: unknown[], ast: AST.Program) {
+    const valueExpression = valueToEstree(yamlDocs)
+    // declare the yaml value as a const variable
+    const statement: estree.VariableDeclaration = {
+      type: "VariableDeclaration",
+      kind: "const",
+      declarations: [
+        {
+          type: "VariableDeclarator",
+          id: {
+            type: "Identifier",
+            name: "yaml",
+          },
+          init: valueExpression,
+        },
+      ],
+    }
+    ast.body.push(statement)
+
+    // create scope
+    const scope: Scope.Scope = {
+      type: "global",
+      isStrict: false,
+      upper: null,
+      childScopes: [],
+      variables: [],
+      set: new Map(),
+      through: [],
+      block: ast,
+      references: [],
+      functionExpressionScope: false,
+      // @ts-expect-error
+      variableScope: null,
+    }
+
+    // create scope manager
+    const scopeManager: Scope.ScopeManager = {
+      scopes: [scope],
+      globalScope: scope,
+      acquire: () => scope,
+      getDeclaredVariables: () => [],
+    }
+
+    return scopeManager
   }
 
   /** The postprocess method is called by ESLint after the parser is run. */
