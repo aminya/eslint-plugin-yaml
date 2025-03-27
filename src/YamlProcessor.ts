@@ -1,7 +1,7 @@
 import type { Linter, AST } from "eslint"
 import type * as estree from "estree"
 import { valueToEstree } from "estree-util-value-to-estree"
-import { loadAll } from "js-yaml"
+import { loadAll, type YAMLException } from "js-yaml"
 import { type LintError as JsHintLintErrors, JSHINT as jshint } from "jshint"
 import path from "path"
 
@@ -12,13 +12,26 @@ type LoadYamlException = {
 }
 type LoadYamlValue = {
   value: unknown[]
-  errors: Linter.LintMessage[]
+  messages: Linter.LintMessage[]
 }
-export class YamlProcessor {
-  private values = new Map<string, LoadYamlValue>()
+
+type Path = string
+
+export class YamlProcessor implements Linter.Processor<Linter.ProcessorFile> {
+  /** Map of file paths to their YAML value and warnings. */
+  private parsedFiles = new Map<Path, LoadYamlValue>()
+
+  // TODO: Implement autofix
+  public supportsAutofix = false
+
+  /** The preprocess method is called by ESLint before the parser is run. */
+  public preprocess(text: string, path: Path): Linter.ProcessorFile[] {
+    return [{ text, filename: path }]
+  }
 
   /** Parser for YAML files. */
-  public parseForESLint(code: string, options?: { filePath?: string }): Linter.ESLintParseResult {
+  public parseForESLint(code: string, options?: { filePath?: Path }): Linter.ESLintParseResult {
+    // initialize AST
     const ast: AST.Program = {
       type: "Program",
       body: [],
@@ -36,22 +49,34 @@ export class YamlProcessor {
     }
 
     try {
-      const yamlValue = this.loadYaml(code, options?.filePath)
+      // load YAML
+      const { yamlDocs, warnings } = this.loadYaml(code, options?.filePath)
+
+      // build AST
       const statement: estree.ExpressionStatement = {
         type: "ExpressionStatement",
-        expression: valueToEstree(yamlValue),
+        expression: valueToEstree(yamlDocs),
       }
       ast.body.push(statement)
-      this.values.set(code, {
-        value: yamlValue,
-        errors: [],
+
+      // save warnings for postprocess
+      this.parsedFiles.set(code, {
+        value: yamlDocs,
+        messages: warnings.map((warning) => ({
+          ruleId: "yaml-warning",
+          severity: 2,
+          message: warning.message,
+          source: warning.mark?.buffer,
+          line: warning.mark?.line ?? 0,
+          column: warning.mark?.column ?? 0,
+        })),
       })
     } catch (err) {
       const { message, mark } = err as LoadYamlException
       const key = options?.filePath ?? code
-      this.values.set(key, {
+      this.parsedFiles.set(key, {
         value: [],
-        errors: [
+        messages: [
           {
             ruleId: "invalid-yaml",
             severity: 2,
@@ -67,28 +92,25 @@ export class YamlProcessor {
     return { ast }
   }
 
-  public preprocess(text: string, filename: string) {
-    return [{ text, filename }]
-  }
-
-  public postprocess(_messages: Linter.LintMessage[][], filePath: string): Linter.LintMessage[] {
+  /** The postprocess method is called by ESLint after the parser is run. */
+  public postprocess(_messages: Linter.LintMessage[][], filePath: Path): Linter.LintMessage[] {
     if (!this.isYaml(filePath)) {
       return []
     }
 
-    let value = this.values.get(filePath)
+    let value = this.parsedFiles.get(filePath)
     if (value === undefined) {
       // search all the keys that end with filePath
-      const key = Array.from(this.values.keys()).find((key) => key.endsWith(filePath))
+      const key = Array.from(this.parsedFiles.keys()).find((key) => key.endsWith(filePath))
       if (key === undefined) {
         return [] // no value found
       }
-      value = this.values.get(key)!
+      value = this.parsedFiles.get(key)!
     }
 
-    if (value.errors.length > 0) {
-      this.values.delete(filePath)
-      return value.errors
+    if (value.messages.length > 0) {
+      this.parsedFiles.delete(filePath)
+      return value.messages
     }
 
     const errors = value.value.flatMap((yamlDoc) => this.lintJSON(yamlDoc))
@@ -104,20 +126,25 @@ export class YamlProcessor {
       }
     })
 
-    this.values.delete(filePath)
+    this.parsedFiles.delete(filePath)
     return linter_messages
   }
 
-  private isYaml(fileName: string) {
-    const fileExtension = path.extname(fileName)
+  private isYaml(filePath: Path) {
+    const fileExtension = path.extname(filePath)
     return [".yaml", ".yml"].includes(fileExtension)
   }
 
-  private loadYaml(fileContent: string, fileName?: string): unknown[] {
-    return loadAll(fileContent, undefined, {
-      filename: fileName,
+  private loadYaml(fileContent: string, filePath?: Path) {
+    const warnings: YAMLException[] = []
+    const yamlDocs = loadAll(fileContent, undefined, {
+      filename: filePath,
       json: false,
+      onWarning: (exception) => {
+        warnings.push(exception)
+      },
     })
+    return { yamlDocs, warnings }
   }
 
   private lintJSON(yamlDoc: LoadYamlValue["value"][0]): JsHintLintErrors[] {
