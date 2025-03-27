@@ -1,15 +1,12 @@
-import type { Linter, AST } from "eslint"
+import { Linter, AST, SourceCode, Scope } from "eslint"
+import type { File, Language, ParseResult, LanguageOptions, LanguageContext, OkParseResult } from "@eslint/core"
 import type * as estree from "estree"
 import { valueToEstree } from "estree-util-value-to-estree"
-import { loadAll, type YAMLException } from "js-yaml"
+import { loadAll, YAMLException } from "js-yaml"
 import { type LintError as JsHintLintErrors, JSHINT as jshint } from "jshint"
 import path from "path"
 
 // it seems mark can be undefined issue #67
-type LoadYamlException = {
-  message: string
-  mark?: { buffer: string; line: number; column: number }
-}
 type LoadYamlValue = {
   value: unknown[]
   messages: Linter.LintMessage[]
@@ -17,7 +14,14 @@ type LoadYamlValue = {
 
 type Path = string
 
-export class YamlProcessor implements Linter.Processor<Linter.ProcessorFile> {
+export type YamlLanguageOptions = {}
+
+export class YamlLang implements Language {
+  public fileType = "text" as const
+  public lineStart = 0 as const
+  public columnStart = 0 as const
+  public nodeTypeKey = "yaml" as const
+
   /** Map of file paths to their YAML value and warnings. */
   private parsedFiles = new Map<Path, LoadYamlValue>()
 
@@ -32,10 +36,32 @@ export class YamlProcessor implements Linter.Processor<Linter.ProcessorFile> {
     return [{ text, filename: path }]
   }
 
+  public createSourceCode(
+    file: File,
+    input: OkParseResult<AST.Program>,
+    _context: LanguageContext<YamlLanguageOptions>,
+  ): SourceCode {
+    if (typeof file.body !== "string") {
+      throw new Error("File body is not a string")
+    }
+
+    return new SourceCode({
+      text: file.body,
+      ast: input.ast,
+      scopeManager: input.scopeManager,
+    })
+  }
+
+  public validateLanguageOptions(_languageOptions: LanguageOptions): void { }
+
   /** Parser for YAML files. */
-  public parseForESLint(code: string, options?: { filePath?: Path }): Linter.ESLintParseResult {    
-    if (options?.filePath && !this.isYaml(options.filePath)) {
-      throw new Error("Not a YAML file")
+  public parse(file: File, _context: LanguageContext<YamlLanguageOptions>): ParseResult<estree.Program> {
+    const path = file.physicalPath || file.path
+    if (!this.isYaml(path) || typeof file.body !== "string") {
+      return {
+        ok: false,
+        errors: [],
+      }
     }
 
     // initialize AST
@@ -45,19 +71,19 @@ export class YamlProcessor implements Linter.Processor<Linter.ProcessorFile> {
       sourceType: "module",
       tokens: [],
       comments: [],
-      range: [0, code.length],
+      range: [0, file.body.length],
       loc: {
         start: { line: 1, column: 0 },
         end: {
-          line: code.split("\n")?.length ?? 1,
-          column: code.split("\n")?.slice(-1)?.[0]?.length ?? 0,
+          line: file.body.split("\n")?.length ?? 1,
+          column: file.body.split("\n")?.slice(-1)?.[0]?.length ?? 0,
         },
       },
     }
 
     try {
       // load YAML
-      const { yamlDocs, warnings } = this.loadYaml(code, options?.filePath)
+      const { yamlDocs, warnings } = this.loadYaml(file.body, path)
 
       // build AST
       const statement: estree.ExpressionStatement = {
@@ -67,38 +93,73 @@ export class YamlProcessor implements Linter.Processor<Linter.ProcessorFile> {
       ast.body.push(statement)
 
       // save warnings for postprocess
-      this.parsedFiles.set(code, {
+      this.parsedFiles.set(file.physicalPath, {
         value: yamlDocs,
         messages: warnings.map((warning): Linter.LintMessage => {
-          const { message, mark } = warning
           return {
-            ruleId: "yaml-warning",
+            ruleId: warning.name,
             severity: 1,
-            message,
-            line: mark?.line ?? 0,
-            column: mark?.column ?? 0,
-          };
+            message: `${warning.name}: ${warning.message} ${warning.reason}`,
+            line: warning.mark?.line ?? 0,
+            column: warning.mark?.column ?? 0,
+          }
         }),
       })
+
+      const scope: Scope.Scope = {
+        type: "module",
+        isStrict: false,
+        upper: null,
+        childScopes: [],
+        variables: [],
+        set: new Map(),
+        through: [],
+        block: ast,
+        references: [],
+        functionExpressionScope: false,
+        // @ts-expect-error
+        variableScope: null,
+      }
+      // scope.variableScope = scope
+      const scopeManager: Scope.ScopeManager = {
+        scopes: [scope],
+        globalScope: scope,
+        acquire: () => scope,
+        getDeclaredVariables: () => [],
+      }
+
+      return {
+        ok: true,
+        ast,
+        scopeManager,
+      }
     } catch (err) {
-      const { message, mark } = err as LoadYamlException
-      const key = options?.filePath ?? code
-      this.parsedFiles.set(key, {
-        value: [],
-        messages: [
+      if (err instanceof YAMLException) {
+        return {
+          ok: false,
+          errors: [
+            {
+              message: `${err.name}: ${err.message} ${err.reason}`,
+              line: err.mark?.line ?? 0,
+              endLine: err.mark?.line ?? 0,
+              column: err.mark?.column ?? 0,
+            },
+          ],
+        }
+      }
+
+      return {
+        ok: false,
+        errors: [
           {
-            ruleId: "invalid-yaml",
-            severity: 2,
-            message,
-            line: mark?.line ?? 0,
-            column: mark?.column ?? 0,
+            message: String(err),
+            line: 0,
+            endLine: 0,
+            column: 0,
           },
         ],
-      })
-      throw err
+      }
     }
-
-    return { ast }
   }
 
   /** The postprocess method is called by ESLint after the parser is run. */

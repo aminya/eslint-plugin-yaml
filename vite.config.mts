@@ -32,7 +32,7 @@ export default defineConfig(async (configEnv) => {
     ssr: {
       target: "node",
       noExternal: true,
-      external: [...module.builtinModules, "js-yaml", "jshint"],
+      external: [...module.builtinModules, "js-yaml", "jshint", "eslint"],
     },
     plugins,
   } as UserConfig
