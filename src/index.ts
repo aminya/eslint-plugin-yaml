@@ -61,6 +61,7 @@ const recommendedConfig: Linter.Config = {
   plugins: {
     [pkg.name]: plugin,
   },
+  language: "yaml/yaml",
   languageOptions: {
     parser,
   },

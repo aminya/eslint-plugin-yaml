@@ -33,12 +33,16 @@ export class YamlProcessor implements Linter.Processor<Linter.ProcessorFile> {
   }
 
   /** Parser for YAML files. */
-  public parseForESLint(code: string, options?: { filePath?: Path }): Linter.ESLintParseResult {
+  public parseForESLint(code: string, options?: { filePath?: Path }): Linter.ESLintParseResult {    
+    if (options?.filePath && !this.isYaml(options.filePath)) {
+      throw new Error("Not a YAML file")
+    }
+
     // initialize AST
     const ast: AST.Program = {
       type: "Program",
       body: [],
-      sourceType: "script",
+      sourceType: "module",
       tokens: [],
       comments: [],
       range: [0, code.length],
@@ -65,14 +69,16 @@ export class YamlProcessor implements Linter.Processor<Linter.ProcessorFile> {
       // save warnings for postprocess
       this.parsedFiles.set(code, {
         value: yamlDocs,
-        messages: warnings.map((warning) => ({
-          ruleId: "yaml-warning",
-          severity: 2,
-          message: warning.message,
-          source: warning.mark?.buffer,
-          line: warning.mark?.line ?? 0,
-          column: warning.mark?.column ?? 0,
-        })),
+        messages: warnings.map((warning): Linter.LintMessage => {
+          const { message, mark } = warning
+          return {
+            ruleId: "yaml-warning",
+            severity: 1,
+            message,
+            line: mark?.line ?? 0,
+            column: mark?.column ?? 0,
+          };
+        }),
       })
     } catch (err) {
       const { message, mark } = err as LoadYamlException
@@ -89,6 +95,7 @@ export class YamlProcessor implements Linter.Processor<Linter.ProcessorFile> {
           },
         ],
       })
+      throw err
     }
 
     return { ast }
