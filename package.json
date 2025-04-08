@@ -45,7 +45,7 @@
   "dependencies": {
     "@types/estree": "1.0.7",
     "eslint-plugin-yaml": "link:",
-    "estree-util-value-to-estree": "3.3.2",
+    "estree-util-value-to-estree": "3.3.3",
     "js-yaml": "4.1.0",
     "jshint": "2.13.6"
   },
