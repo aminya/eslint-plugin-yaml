@@ -20,7 +20,7 @@ export class YamlLang implements Language {
   public fileType = "text" as const
   public lineStart = 0 as const
   public columnStart = 0 as const
-  public nodeTypeKey = "type" as const
+  public nodeTypeKey = "yamlType" as const
 
   /** Map of file paths to their YAML value and warnings. */
   private parsedFiles = new Map<Path, LoadYamlValue>()
@@ -125,7 +125,8 @@ export class YamlLang implements Language {
 
   private initAst(code: string): AST.Program {
     return {
-      type: "Program",
+      // @ts-expect-error
+      yamlType: "Program",
       body: [],
       sourceType: "module",
       tokens: [],
@@ -143,10 +144,15 @@ export class YamlLang implements Language {
 
   private buildAst(yamlDocs: unknown[], ast: AST.Program) {
     const valueExpression = valueToEstree(yamlDocs)
-    
+
+    // remove all types from the valueExpression recursively
+
+    removeTypes(valueExpression)
+
     // declare the yaml value as a default export
     const statement: estree.ModuleDeclaration = {
-      type: "ExportDefaultDeclaration",
+      // @ts-expect-error
+      yamlType: "ExportDefaultDeclaration",
       declaration: valueExpression,
     }
     ast.body.push(statement)
@@ -239,5 +245,36 @@ export class YamlLang implements Language {
     const data = jshint.data()
     const errors = data?.errors ?? []
     return errors
+  }
+}
+
+function removeTypes(node: estree.Node) {
+  if (Array.isArray(node)) {
+    for (const child of node) {
+      removeTypes(child)
+    }
+    return
+  }
+
+  if (!hasType(node)) {
+    return
+  }
+  const type = node.type
+  // @ts-expect-error
+  delete node.type
+  // @ts-expect-error
+  node.yamlType = type
+
+  const children = Object.values(node)
+  for (const child of children) {
+    removeTypes(child)
+  }
+}
+
+function hasType(node: estree.Node) {
+  try {
+    return typeof node === 'object' && node !== null && 'type' in node
+  } catch {
+    return false
   }
 }
