@@ -1,19 +1,11 @@
 import type { Linter, ESLint } from "eslint"
-import { YamlProcessor } from "./YamlProcessor.js"
+import { YamlLang } from "./YamlLang.js"
 import { getPackageJson } from "./getPackageJson.js"
 
 const pkg = getPackageJson()
 
 // Create singleton instance
-const yamlProcessor = new YamlProcessor()
-
-const parser: Linter.ESTreeParser = {
-  meta: {
-    name: "yaml-eslint-parser",
-    version: pkg.version,
-  },
-  parseForESLint: yamlProcessor.parseForESLint.bind(yamlProcessor),
-}
+const yamlLang = new YamlLang()
 
 const processors = {
   [pkg.name]: {
@@ -21,7 +13,8 @@ const processors = {
       name: pkg.name,
       version: pkg.version,
     },
-    postprocess: yamlProcessor.postprocess.bind(yamlProcessor),
+    preprocess: yamlLang.preprocess.bind(yamlLang),
+    postprocess: yamlLang.postprocess.bind(yamlLang),
   },
 } satisfies ESLint.Plugin["processors"]
 
@@ -46,6 +39,9 @@ const plugin = {
     recommended: {} as Linter.Config,
     legacy: {} as Linter.LegacyConfig,
   },
+  languages: {
+    yaml: yamlLang,
+  },
 } satisfies ESLint.Plugin
 
 const files = ["**/*.yml", "**/*.yaml", "!**/node_modules/**", "!**/pnpm-lock.yaml", "**/.github/**.{yml,yaml}"]
@@ -53,17 +49,11 @@ const files = ["**/*.yml", "**/*.yaml", "!**/node_modules/**", "!**/pnpm-lock.ya
 const recommendedConfig: Linter.Config = {
   name: `${pkg.name}/recommended}`,
   files,
-  processor: {
-    name: pkg.name,
-    preprocess: yamlProcessor.preprocess.bind(yamlProcessor),
-    postprocess: yamlProcessor.postprocess.bind(yamlProcessor),
-  },
   plugins: {
     [pkg.name]: plugin,
   },
-  languageOptions: {
-    parser,
-  },
+  language: `${pkg.name}/yaml`,
+  languageOptions: {},
 }
 
 plugin.configs.recommended = recommendedConfig
