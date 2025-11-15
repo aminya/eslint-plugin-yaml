@@ -45,7 +45,7 @@
   "dependencies": {
     "@types/estree": "1.0.7",
     "estree-util-value-to-estree": "3.3.3",
-    "js-yaml": "4.1.0",
+    "js-yaml": "4.1.1",
     "jshint": "2.13.6"
   },
   "devDependencies": {
