@@ -14,9 +14,6 @@ importers:
       '@types/estree':
         specifier: 1.0.7
         version: 1.0.7
-      eslint-plugin-yaml:
-        specifier: 'link:'
-        version: 'link:'
       estree-util-value-to-estree:
         specifier: 3.3.3
         version: 3.3.3
